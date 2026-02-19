@@ -1,0 +1,15 @@
+{
+  "name": "apicarraces",
+  "version": "1.0.0",
+  "description": "Api para la organización de carreras de coches",
+  "license": "ISC",
+  "author": "Carlos Torre",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
