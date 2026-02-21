@@ -12,6 +12,49 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  parameters:
+    page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: Page number (1-based)
+    pageSize:
+      name: pageSize
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      description: Number of items per page
+    q:
+      name: q
+      in: query
+      schema:
+        type: string
+      description: Full text search across common fields
+    sort:
+      name: sort
+      in: query
+      schema:
+        type: string
+      description: Sort expression, e.g. `Alias:asc` or `FechaDesde:desc`
+    filterClubId:
+      name: clubId
+      in: query
+      schema:
+        type: integer
+      description: Filter by ClubId
+    filterDisciplineId:
+      name: disciplineId
+      in: query
+      schema:
+        type: integer
+      description: Filter by DisciplineId
+
   schemas:
     DrivingEnviroment:
       type: object
@@ -25,6 +68,11 @@ components:
         default:
           type: boolean
       required: [Alias, Descripcion]
+      example:
+        DrivingEnviromentId: 1
+        Alias: Real
+        Descripcion: coches con vehículos reales
+        default: true
 
     Speciality:
       type: object
@@ -38,6 +86,11 @@ components:
         default:
           type: boolean
       required: [Alias, Descripcion]
+      example:
+        SpecialityId: 1
+        Alias: Circuito
+        Descripcion: Circuito cerrado
+        default: true
 
     Format:
       type: object
@@ -49,6 +102,10 @@ components:
         default:
           type: boolean
       required: [Descripcion]
+      example:
+        FormatId: 1
+        Descripcion: Velocidad
+        default: true
 
     Surface:
       type: object
@@ -60,6 +117,10 @@ components:
         default:
           type: boolean
       required: [Descripcion]
+      example:
+        SurfaceId: 10
+        Descripcion: Asfalto
+        default: true
 
     Discipline:
       type: object
@@ -79,6 +140,14 @@ components:
         default:
           type: boolean
       required: [Alias, Descripcion, SpecialityId, FormatId, SurfaceId]
+      example:
+        DisciplineId: 1
+        Alias: Asfalto
+        Descripcion: 1.1 Asfalto
+        SpecialityId: 1
+        FormatId: 1
+        SurfaceId: 1
+        default: true
 
     Division:
       type: object
@@ -94,6 +163,12 @@ components:
         default:
           type: boolean
       required: [Descripcion, DisciplineId]
+      example:
+        DivisionId: 1
+        Descripcion: Formula 1
+        DisciplineId: 1
+        ClubId: 0
+        default: true
 
     Group:
       type: object
@@ -150,6 +225,17 @@ components:
           items:
             $ref: '#/components/schemas/ScoringDet'
       required: [Descripcion]
+      example:
+        ScoringId: 1
+        Descripcion: Scoring default nacional
+        ClubId: 0
+        UltPosPuntos: 10
+        PuntosDefecto: 25.0
+        Details:
+          - Posicion: 1
+            Puntos: 25
+          - Posicion: 2
+            Puntos: 18
 
     Championship:
       type: object
@@ -255,6 +341,13 @@ components:
           type: string
           format: date
       required: [Alias, TaxNombre, TaxNumero, Descripcion, FechaFundacion]
+      example:
+        ClubId: 1
+        Alias: ClubRacing
+        TaxNombre: Racing SL
+        TaxNumero: B12345678
+        Descripcion: Club de pruebas
+        FechaFundacion: '1995-06-15'
 
     Venue:
       type: object
@@ -386,6 +479,15 @@ components:
         Notas:
           type: string
       required: [SeasonId, EventId, VenueId, Alias, TotalRaces, Responsable, SoloUsuariosReg]
+      example:
+        CompetitionId: 100
+        SeasonId: 10
+        EventId: 5
+        VenueId: 2
+        Alias: Copa Primavera
+        TotalRaces: 3
+        Responsable: 7
+        SoloUsuariosReg: false
 
     Registration:
       type: object
@@ -504,6 +606,12 @@ components:
           type: string
           format: date
       required: [Nick, Nombre]
+      example:
+        UserId: 7
+        Nick: piloto7
+        Nombre: Juan
+        Apellidos: Pérez
+        Email: juan.perez@example.com
 
     UserEntity:
       type: object
@@ -535,16 +643,53 @@ paths:
   /drivingenviroments:
     get:
       tags: [DrivingEnviroment]
-      summary: List DrivingEnviroments
+      summary: List DrivingEnviroments (paginated, filterable)
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/q'
+        - name: alias
+          in: query
+          schema:
+            type: string
+          description: Filter by Alias (exact or partial)
+        - name: default
+          in: query
+          schema:
+            type: boolean
+          description: Filter by default flag
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/DrivingEnviroment'
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  pageSize:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DrivingEnviroment'
+              examples:
+                sample:
+                  summary: Sample paged response
+                  value:
+                    total: 5
+                    page: 1
+                    pageSize: 20
+                    items:
+                      - DrivingEnviromentId: 1
+                        Alias: Real
+                        Descripcion: coches con vehículos reales
+                        default: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
     post:
       tags: [DrivingEnviroment]
       summary: Create DrivingEnviroment
@@ -554,361 +699,166 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/DrivingEnviroment'
+            examples:
+              create:
+                summary: Create example
+                value:
+                  Alias: Virtual
+                  Descripcion: SimRancing
+                  default: false
       responses:
         '201':
           description: Created
-
-  /drivingenviroments/{id}:
-    parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-    get:
-      tags: [DrivingEnviroment]
-      summary: Get DrivingEnviroment by id
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DrivingEnviroment'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    put:
-      tags: [DrivingEnviroment]
-      summary: Update DrivingEnviroment
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DrivingEnviroment'
-      responses:
-        '200':
-          description: Updated
-    delete:
-      tags: [DrivingEnviroment]
-      summary: Delete DrivingEnviroment
-      responses:
-        '204':
-          description: Deleted
 
   /specialities:
     get:
       tags: [Speciality]
-      summary: List Specialities
+      summary: List Specialities (paginated)
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/q'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Speciality'
-    post:
-      tags: [Speciality]
-      summary: Create Speciality
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Speciality'
-      responses:
-        '201':
-          description: Created
-
-  /formats:
-    get:
-      tags: [Format]
-      summary: List Formats
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Format'
-    post:
-      tags: [Format]
-      summary: Create Format
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Format'
-      responses:
-        '201':
-          description: Created
-
-  /surfaces:
-    get:
-      tags: [Surface]
-      summary: List Surfaces
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Surface'
-    post:
-      tags: [Surface]
-      summary: Create Surface
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Surface'
-      responses:
-        '201':
-          description: Created
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  pageSize:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Speciality'
 
   /disciplines:
     get:
       tags: [Discipline]
-      summary: List Disciplines
+      summary: List Disciplines (filter by speciality/format/surface)
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+        - name: specialityId
+          in: query
+          schema:
+            type: integer
+        - name: formatId
+          in: query
+          schema:
+            type: integer
+        - name: surfaceId
+          in: query
+          schema:
+            type: integer
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Discipline'
-    post:
-      tags: [Discipline]
-      summary: Create Discipline
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Discipline'
-      responses:
-        '201':
-          description: Created
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  pageSize:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Discipline'
 
   /divisions:
     get:
       tags: [Division]
-      summary: List Divisions
+      summary: List Divisions (filter by discipline)
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/filterDisciplineId'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Division'
-    post:
-      tags: [Division]
-      summary: Create Division
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Division'
-      responses:
-        '201':
-          description: Created
-
-  /groups:
-    get:
-      tags: [Group]
-      summary: List Groups
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Group'
-    post:
-      tags: [Group]
-      summary: Create Group
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Group'
-      responses:
-        '201':
-          description: Created
-
-  /levels:
-    get:
-      tags: [Level]
-      summary: List Levels
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Level'
-
-  /scorings:
-    get:
-      tags: [Scoring]
-      summary: List Scorings
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Scoring'
-    post:
-      tags: [Scoring]
-      summary: Create Scoring with details
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Scoring'
-      responses:
-        '201':
-          description: Created
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  pageSize:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Division'
 
   /championships:
     get:
       tags: [Championship]
-      summary: List Championships
+      summary: List Championships (filter by level/club)
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/filterClubId'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Championship'
-    post:
-      tags: [Championship]
-      summary: Create Championship
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Championship'
-      responses:
-        '201':
-          description: Created
-
-  /rulebooks:
-    get:
-      tags: [Rulebook]
-      summary: List Rulebooks
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Rulebook'
-    post:
-      tags: [Rulebook]
-      summary: Create Rulebook
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Rulebook'
-      responses:
-        '201':
-          description: Created
-
-  /rules:
-    get:
-      tags: [Rule]
-      summary: List Rules
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Rule'
-    post:
-      tags: [Rule]
-      summary: Create Rule
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Rule'
-      responses:
-        '201':
-          description: Created
-
-  /seasons:
-    get:
-      tags: [Season]
-      summary: List Seasons
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Season'
-    post:
-      tags: [Season]
-      summary: Create Season
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Season'
-      responses:
-        '201':
-          description: Created
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  pageSize:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Championship'
 
   /clubs:
     get:
       tags: [Club]
-      summary: List Clubs
+      summary: List Clubs (searchable)
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/q'
+        - name: alias
+          in: query
+          schema:
+            type: string
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Club'
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  pageSize:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Club'
     post:
       tags: [Club]
       summary: Create Club
@@ -918,110 +868,66 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Club'
+            examples:
+              createClub:
+                summary: Create Club example
+                value:
+                  Alias: ClubRacing
+                  TaxNombre: Racing SL
+                  TaxNumero: B12345678
+                  Descripcion: Club de pruebas
+                  FechaFundacion: '1995-06-15'
       responses:
         '201':
           description: Created
 
-  /venues:
+  /users:
     get:
-      tags: [Venue]
-      summary: List Venues
+      tags: [User]
+      summary: List Users (search, pagination)
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/q'
+        - name: nick
+          in: query
+          schema:
+            type: string
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Venue'
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  pageSize:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
     post:
-      tags: [Venue]
-      summary: Create Venue
+      tags: [User]
+      summary: Create User
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Venue'
-      responses:
-        '201':
-          description: Created
-
-  /circuits:
-    get:
-      tags: [Circuit]
-      summary: List Circuits
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Circuit'
-    post:
-      tags: [Circuit]
-      summary: Create Circuit
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Circuit'
-      responses:
-        '201':
-          description: Created
-
-  /segments:
-    get:
-      tags: [Segment]
-      summary: List Segments
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Segment'
-    post:
-      tags: [Segment]
-      summary: Create Segment
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Segment'
-      responses:
-        '201':
-          description: Created
-
-  /events:
-    get:
-      tags: [Event]
-      summary: List Events
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Event'
-    post:
-      tags: [Event]
-      summary: Create Event
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Event'
+              $ref: '#/components/schemas/User'
+            examples:
+              createUser:
+                summary: Create user example
+                value:
+                  Nick: piloto7
+                  Nombre: Juan
+                  Apellidos: Pérez
+                  Email: juan.perez@example.com
       responses:
         '201':
           description: Created
@@ -1029,54 +935,116 @@ paths:
   /competitions:
     get:
       tags: [Competition]
-      summary: List Competitions
+      summary: List Competitions (filter by season/event/venue)
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+        - name: seasonId
+          in: query
+          schema:
+            type: integer
+        - name: eventId
+          in: query
+          schema:
+            type: integer
+        - name: venueId
+          in: query
+          schema:
+            type: integer
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Competition'
-    post:
-      tags: [Competition]
-      summary: Create Competition
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Competition'
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  pageSize:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Competition'
+
+  /events:
+    get:
+      tags: [Event]
+      summary: List Events (filter by club/date)
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+        - name: clubId
+          in: query
+          schema:
+            type: integer
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Start date filter
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date
+          description: End date filter
       responses:
-        '201':
-          description: Created
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  pageSize:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Event'
 
   /registrations:
     get:
       tags: [Registration]
-      summary: List Registrations
+      summary: List Registrations (filter by competition/user)
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+        - name: competitionId
+          in: query
+          schema:
+            type: integer
+        - name: userId
+          in: query
+          schema:
+            type: integer
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Registration'
-    post:
-      tags: [Registration]
-      summary: Create Registration
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Registration'
-      responses:
-        '201':
-          description: Created
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  pageSize:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Registration'
 
   /races/{id}:
     parameters:
@@ -1094,6 +1062,15 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Race'
+            examples:
+              updateRace:
+                summary: Set race schedule and state
+                value:
+                  CompetitionId: 100
+                  NumRace: 1
+                  Fecha: '2026-05-10'
+                  Hora: '2026-05-10T10:30:00Z'
+                  Estado: 1
       responses:
         '200':
           description: Updated
@@ -1114,6 +1091,16 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/RaceResult'
+            examples:
+              results:
+                summary: Race results example
+                value:
+                  RaceId: 200
+                  Posicion: 1
+                  UserId: 7
+                  Laps: 12
+                  Pole: false
+                  FastLap: true
       responses:
         '200':
           description: Updated
@@ -1172,32 +1159,6 @@ paths:
         '201':
           description: Created
 
-  /users:
-    get:
-      tags: [User]
-      summary: List Users
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
-    post:
-      tags: [User]
-      summary: Create User
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
-      responses:
-        '201':
-          description: Created
-
   /userentities:
     get:
       tags: [UserEntity]
@@ -1220,6 +1181,14 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UserEntity'
+            examples:
+              associate:
+                summary: Associate user to competition as responsible
+                value:
+                  UserId: 7
+                  EntityLinkId: 3
+                  RolId: 7
+                  EntityId: 100
       responses:
         '201':
           description: Created
