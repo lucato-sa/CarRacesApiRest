@@ -1,0 +1,1228 @@
+openapi: 3.0.3
+info:
+  title: CarRaces API
+  version: 1.0.0
+  description: API para gestión de campeonatos, clubes, pruebas y usuarios según la documentación del proyecto.
+servers:
+  - url: /api
+    description: API local base path
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    DrivingEnviroment:
+      type: object
+      properties:
+        DrivingEnviromentId:
+          type: integer
+        Alias:
+          type: string
+        Descripcion:
+          type: string
+        default:
+          type: boolean
+      required: [Alias, Descripcion]
+
+    Speciality:
+      type: object
+      properties:
+        SpecialityId:
+          type: integer
+        Alias:
+          type: string
+        Descripcion:
+          type: string
+        default:
+          type: boolean
+      required: [Alias, Descripcion]
+
+    Format:
+      type: object
+      properties:
+        FormatId:
+          type: integer
+        Descripcion:
+          type: string
+        default:
+          type: boolean
+      required: [Descripcion]
+
+    Surface:
+      type: object
+      properties:
+        SurfaceId:
+          type: integer
+        Descripcion:
+          type: string
+        default:
+          type: boolean
+      required: [Descripcion]
+
+    Discipline:
+      type: object
+      properties:
+        DisciplineId:
+          type: integer
+        Alias:
+          type: string
+        Descripcion:
+          type: string
+        SpecialityId:
+          type: integer
+        FormatId:
+          type: integer
+        SurfaceId:
+          type: integer
+        default:
+          type: boolean
+      required: [Alias, Descripcion, SpecialityId, FormatId, SurfaceId]
+
+    Division:
+      type: object
+      properties:
+        DivisionId:
+          type: integer
+        Descripcion:
+          type: string
+        DisciplineId:
+          type: integer
+        ClubId:
+          type: integer
+        default:
+          type: boolean
+      required: [Descripcion, DisciplineId]
+
+    Group:
+      type: object
+      properties:
+        GroupId:
+          type: integer
+        Descripcion:
+          type: string
+        DivisionId:
+          type: integer
+        ClubId:
+          type: integer
+        default:
+          type: boolean
+      required: [Descripcion, DivisionId]
+
+    Level:
+      type: object
+      properties:
+        LevelId:
+          type: integer
+        Descripcion:
+          type: string
+      required: [Descripcion]
+
+    ScoringDet:
+      type: object
+      properties:
+        ScoringDetId:
+          type: integer
+        ScoringId:
+          type: integer
+        Posicion:
+          type: integer
+        Puntos:
+          type: number
+      required: [Posicion, Puntos]
+
+    Scoring:
+      type: object
+      properties:
+        ScoringId:
+          type: integer
+        Descripcion:
+          type: string
+        ClubId:
+          type: integer
+        UltPosPuntos:
+          type: integer
+        PuntosDefecto:
+          type: number
+        Details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScoringDet'
+      required: [Descripcion]
+
+    Championship:
+      type: object
+      properties:
+        ChampionshipId:
+          type: integer
+        Descripcion:
+          type: string
+        DrivingEnviromentId:
+          type: integer
+        SpecialityId:
+          type: integer
+        DisciplineId:
+          type: integer
+        DivisionId:
+          type: integer
+        GroupId:
+          type: integer
+        LevelId:
+          type: integer
+        ClubId:
+          type: integer
+        ScoringId:
+          type: integer
+      required: [Descripcion, DrivingEnviromentId, SpecialityId, DisciplineId, DivisionId, LevelId, ScoringId]
+
+    Rulebook:
+      type: object
+      properties:
+        RulebookId:
+          type: integer
+        Descripcion:
+          type: string
+        FechaInicioValido:
+          type: string
+          format: date
+        FechaFinValido:
+          type: string
+          format: date
+        DivisionId:
+          type: integer
+        GroupId:
+          type: integer
+        ClubId:
+          type: integer
+      required: [Descripcion, FechaInicioValido, DivisionId]
+
+    Rule:
+      type: object
+      properties:
+        RuleId:
+          type: integer
+        RulebookId:
+          type: integer
+        RuleCode:
+          type: string
+        Descripcion:
+          type: string
+      required: [RulebookId, RuleCode, Descripcion]
+
+    Season:
+      type: object
+      properties:
+        SeasonId:
+          type: integer
+        ChampionshipId:
+          type: integer
+        Descripcion:
+          type: string
+        FechaDesde:
+          type: string
+          format: date
+        FechaHasta:
+          type: string
+          format: date
+        PilotosMin:
+          type: integer
+        PilotosMax:
+          type: integer
+        SoloSocios:
+          type: boolean
+        RulebookId:
+          type: integer
+      required: [ChampionshipId, Descripcion, FechaDesde, FechaHasta, PilotosMin, PilotosMax]
+
+    Club:
+      type: object
+      properties:
+        ClubId:
+          type: integer
+        Alias:
+          type: string
+        TaxNombre:
+          type: string
+        TaxNumero:
+          type: string
+        Descripcion:
+          type: string
+        FechaFundacion:
+          type: string
+          format: date
+        FechaRegistro:
+          type: string
+          format: date
+      required: [Alias, TaxNombre, TaxNumero, Descripcion, FechaFundacion]
+
+    Venue:
+      type: object
+      properties:
+        VenueId:
+          type: integer
+        ClubId:
+          type: integer
+        Alias:
+          type: string
+        SedeSocial:
+          type: boolean
+        SedeCarreras:
+          type: boolean
+        Direccion:
+          type: string
+        Localidad:
+          type: string
+        Provincia:
+          type: string
+        Pais:
+          type: string
+        MapLatitud:
+          type: number
+        MapLongitud:
+          type: number
+      required: [ClubId, Alias, SedeSocial, SedeCarreras]
+
+    Circuit:
+      type: object
+      properties:
+        CircuitId:
+          type: integer
+        VenueId:
+          type: integer
+        SurfaceId:
+          type: integer
+        DrivingEnviromentId:
+          type: integer
+        Alias:
+          type: string
+        Descripcion:
+          type: string
+        Longitud:
+          type: number
+        Permanente:
+          type: boolean
+        TotSegments:
+          type: integer
+        SlotAnalogic:
+          type: boolean
+        SlotDigital:
+          type: boolean
+        SlotTotLanes:
+          type: integer
+      required: [VenueId, SurfaceId, DrivingEnviromentId, Alias, Permanente, TotSegments]
+
+    Segment:
+      type: object
+      properties:
+        SegmentId:
+          type: integer
+        CircuitId:
+          type: integer
+        Alias:
+          type: string
+        NumSegment:
+          type: integer
+        NumLane:
+          type: integer
+        TotSections:
+          type: integer
+        Longitud:
+          type: number
+      required: [CircuitId, Alias]
+
+    Event:
+      type: object
+      properties:
+        EventId:
+          type: integer
+        Descripcion:
+          type: string
+        FechaInicio:
+          type: string
+          format: date
+        FechaFin:
+          type: string
+          format: date
+        ClubId:
+          type: integer
+      required: [Descripcion, FechaInicio, FechaFin, ClubId]
+
+    Competition:
+      type: object
+      properties:
+        CompetitionId:
+          type: integer
+        SeasonId:
+          type: integer
+        EventId:
+          type: integer
+        VenueId:
+          type: integer
+        Alias:
+          type: string
+        TotalRaces:
+          type: integer
+        FechaInicioInscripPri:
+          type: string
+          format: date
+        FechaFinInscripPri:
+          type: string
+          format: date
+        FechaInicioInscrip:
+          type: string
+          format: date
+        FechaFinInscrip:
+          type: string
+          format: date
+        PilotosMinInscrip:
+          type: integer
+        PilotosMaxInscrip:
+          type: integer
+        Responsable:
+          type: integer
+        SoloUsuariosReg:
+          type: boolean
+        Notas:
+          type: string
+      required: [SeasonId, EventId, VenueId, Alias, TotalRaces, Responsable, SoloUsuariosReg]
+
+    Registration:
+      type: object
+      properties:
+        RegistrationId:
+          type: integer
+        CompetitionId:
+          type: integer
+        UserId:
+          type: integer
+        FechaPreRegistro:
+          type: string
+          format: date
+        FechaRegistro:
+          type: string
+          format: date
+        Dorsal:
+          type: integer
+      required: [CompetitionId, UserId]
+
+    Race:
+      type: object
+      properties:
+        RaceId:
+          type: integer
+        CompetitionId:
+          type: integer
+        NumRace:
+          type: integer
+        Fecha:
+          type: string
+          format: date
+        Hora:
+          type: string
+          format: date-time
+        Estado:
+          type: integer
+      required: [CompetitionId, NumRace, Fecha, Hora, Estado]
+
+    RaceResult:
+      type: object
+      properties:
+        RaceResultId:
+          type: integer
+        RaceId:
+          type: integer
+        Posicion:
+          type: integer
+        UserId:
+          type: integer
+        Laps:
+          type: integer
+        NumSegment:
+          type: integer
+        Pole:
+          type: boolean
+        FastLap:
+          type: boolean
+      required: [RaceId, Posicion, UserId]
+
+    EntityLink:
+      type: object
+      properties:
+        EntityLinkId:
+          type: integer
+        EntityName:
+          type: string
+      required: [EntityName]
+
+    Rol:
+      type: object
+      properties:
+        RolId:
+          type: integer
+        Nombre:
+          type: string
+        Pseudonimo:
+          type: string
+      required: [Nombre, Pseudonimo]
+
+    RolEntity:
+      type: object
+      properties:
+        RolEntityId:
+          type: integer
+        EntityLinkId:
+          type: integer
+        RolId:
+          type: integer
+      required: [EntityLinkId, RolId]
+
+    User:
+      type: object
+      properties:
+        UserId:
+          type: integer
+        Nick:
+          type: string
+        Nombre:
+          type: string
+        Apellidos:
+          type: string
+        Direccion:
+          type: string
+        Localidad:
+          type: string
+        Provincia:
+          type: string
+        Pais:
+          type: string
+        Telefono:
+          type: string
+        Email:
+          type: string
+        FechaRegistro:
+          type: string
+          format: date
+      required: [Nick, Nombre]
+
+    UserEntity:
+      type: object
+      properties:
+        UserEntityId:
+          type: integer
+        UserId:
+          type: integer
+        EntityLinkId:
+          type: integer
+        RolId:
+          type: integer
+        EntityId:
+          type: integer
+        FechaRegistro:
+          type: string
+          format: date
+        Activo:
+          type: boolean
+      required: [UserId, EntityLinkId, RolId, EntityId]
+
+  responses:
+    NotFound:
+      description: Entity not found
+    BadRequest:
+      description: Invalid request
+
+paths:
+  /drivingenviroments:
+    get:
+      tags: [DrivingEnviroment]
+      summary: List DrivingEnviroments
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DrivingEnviroment'
+    post:
+      tags: [DrivingEnviroment]
+      summary: Create DrivingEnviroment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DrivingEnviroment'
+      responses:
+        '201':
+          description: Created
+
+  /drivingenviroments/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [DrivingEnviroment]
+      summary: Get DrivingEnviroment by id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DrivingEnviroment'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [DrivingEnviroment]
+      summary: Update DrivingEnviroment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DrivingEnviroment'
+      responses:
+        '200':
+          description: Updated
+    delete:
+      tags: [DrivingEnviroment]
+      summary: Delete DrivingEnviroment
+      responses:
+        '204':
+          description: Deleted
+
+  /specialities:
+    get:
+      tags: [Speciality]
+      summary: List Specialities
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Speciality'
+    post:
+      tags: [Speciality]
+      summary: Create Speciality
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Speciality'
+      responses:
+        '201':
+          description: Created
+
+  /formats:
+    get:
+      tags: [Format]
+      summary: List Formats
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Format'
+    post:
+      tags: [Format]
+      summary: Create Format
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Format'
+      responses:
+        '201':
+          description: Created
+
+  /surfaces:
+    get:
+      tags: [Surface]
+      summary: List Surfaces
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Surface'
+    post:
+      tags: [Surface]
+      summary: Create Surface
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Surface'
+      responses:
+        '201':
+          description: Created
+
+  /disciplines:
+    get:
+      tags: [Discipline]
+      summary: List Disciplines
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Discipline'
+    post:
+      tags: [Discipline]
+      summary: Create Discipline
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Discipline'
+      responses:
+        '201':
+          description: Created
+
+  /divisions:
+    get:
+      tags: [Division]
+      summary: List Divisions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Division'
+    post:
+      tags: [Division]
+      summary: Create Division
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Division'
+      responses:
+        '201':
+          description: Created
+
+  /groups:
+    get:
+      tags: [Group]
+      summary: List Groups
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Group'
+    post:
+      tags: [Group]
+      summary: Create Group
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Group'
+      responses:
+        '201':
+          description: Created
+
+  /levels:
+    get:
+      tags: [Level]
+      summary: List Levels
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Level'
+
+  /scorings:
+    get:
+      tags: [Scoring]
+      summary: List Scorings
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Scoring'
+    post:
+      tags: [Scoring]
+      summary: Create Scoring with details
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Scoring'
+      responses:
+        '201':
+          description: Created
+
+  /championships:
+    get:
+      tags: [Championship]
+      summary: List Championships
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Championship'
+    post:
+      tags: [Championship]
+      summary: Create Championship
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Championship'
+      responses:
+        '201':
+          description: Created
+
+  /rulebooks:
+    get:
+      tags: [Rulebook]
+      summary: List Rulebooks
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Rulebook'
+    post:
+      tags: [Rulebook]
+      summary: Create Rulebook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Rulebook'
+      responses:
+        '201':
+          description: Created
+
+  /rules:
+    get:
+      tags: [Rule]
+      summary: List Rules
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Rule'
+    post:
+      tags: [Rule]
+      summary: Create Rule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Rule'
+      responses:
+        '201':
+          description: Created
+
+  /seasons:
+    get:
+      tags: [Season]
+      summary: List Seasons
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Season'
+    post:
+      tags: [Season]
+      summary: Create Season
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Season'
+      responses:
+        '201':
+          description: Created
+
+  /clubs:
+    get:
+      tags: [Club]
+      summary: List Clubs
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Club'
+    post:
+      tags: [Club]
+      summary: Create Club
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Club'
+      responses:
+        '201':
+          description: Created
+
+  /venues:
+    get:
+      tags: [Venue]
+      summary: List Venues
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Venue'
+    post:
+      tags: [Venue]
+      summary: Create Venue
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Venue'
+      responses:
+        '201':
+          description: Created
+
+  /circuits:
+    get:
+      tags: [Circuit]
+      summary: List Circuits
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Circuit'
+    post:
+      tags: [Circuit]
+      summary: Create Circuit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Circuit'
+      responses:
+        '201':
+          description: Created
+
+  /segments:
+    get:
+      tags: [Segment]
+      summary: List Segments
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Segment'
+    post:
+      tags: [Segment]
+      summary: Create Segment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Segment'
+      responses:
+        '201':
+          description: Created
+
+  /events:
+    get:
+      tags: [Event]
+      summary: List Events
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+    post:
+      tags: [Event]
+      summary: Create Event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+      responses:
+        '201':
+          description: Created
+
+  /competitions:
+    get:
+      tags: [Competition]
+      summary: List Competitions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Competition'
+    post:
+      tags: [Competition]
+      summary: Create Competition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Competition'
+      responses:
+        '201':
+          description: Created
+
+  /registrations:
+    get:
+      tags: [Registration]
+      summary: List Registrations
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Registration'
+    post:
+      tags: [Registration]
+      summary: Create Registration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Registration'
+      responses:
+        '201':
+          description: Created
+
+  /races/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    put:
+      tags: [Race]
+      summary: Update Race (used to set date/time/state)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Race'
+      responses:
+        '200':
+          description: Updated
+
+  /raceresults/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    put:
+      tags: [RaceResult]
+      summary: Update RaceResult (submit results for a race)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RaceResult'
+      responses:
+        '200':
+          description: Updated
+
+  /entitylinks:
+    get:
+      tags: [EntityLink]
+      summary: List EntityLinks
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EntityLink'
+
+  /roles:
+    get:
+      tags: [Rol]
+      summary: List Roles
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Rol'
+
+  /rolentities:
+    get:
+      tags: [RolEntity]
+      summary: List RolEntities
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RolEntity'
+    post:
+      tags: [RolEntity]
+      summary: Create RolEntity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RolEntity'
+      responses:
+        '201':
+          description: Created
+
+  /users:
+    get:
+      tags: [User]
+      summary: List Users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    post:
+      tags: [User]
+      summary: Create User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: Created
+
+  /userentities:
+    get:
+      tags: [UserEntity]
+      summary: List UserEntities
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserEntity'
+    post:
+      tags: [UserEntity]
+      summary: Create UserEntity (associate user with entity/role)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserEntity'
+      responses:
+        '201':
+          description: Created
+
+security:
+  - bearerAuth: []
