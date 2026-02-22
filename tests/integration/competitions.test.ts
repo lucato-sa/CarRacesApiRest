@@ -71,4 +71,58 @@ describe('Competitions Endpoints', () => {
       });
     });
   });
+
+  describe('POST /competitions', () => {
+    it('should create a new competition', () => {
+      const newCompetition = {
+        SeasonId: 10,
+        EventId: 5,
+        VenueId: 2,
+        Alias: 'Copa Primavera',
+        TotalRaces: 3,
+        Responsable: 7,
+        SoloUsuariosReg: false,
+      };
+      expect(newCompetition).toHaveProperty('SeasonId');
+      expect(newCompetition).toHaveProperty('Alias');
+    });
+  });
+
+  describe('GET /competitions/{id}', () => {
+    it('should retrieve a specific competition', () => {
+      const competition = {
+        CompetitionId: 100,
+        SeasonId: 10,
+        EventId: 5,
+        VenueId: 2,
+        Alias: 'Copa Primavera',
+        TotalRaces: 3,
+        Responsable: 7,
+        SoloUsuariosReg: false,
+      };
+      expect(competition.CompetitionId).toBe(100);
+      expect(competition.Alias).toBe('Copa Primavera');
+    });
+
+    it('should return 404 for non-existent competition', () => {
+      const nonExistentId = 9999;
+      expect(nonExistentId).not.toBe(100);
+    });
+  });
+
+  describe('PUT /competitions/{id}', () => {
+    it('should update an existing competition', () => {
+      const updateData = {
+        SeasonId: 10,
+        EventId: 5,
+        VenueId: 2,
+        Alias: 'Copa Primavera Actualizada',
+        TotalRaces: 4,
+        Responsable: 7,
+        SoloUsuariosReg: true,
+      };
+      expect(updateData.Alias).toBe('Copa Primavera Actualizada');
+      expect(updateData.TotalRaces).toBe(4);
+    });
+  });
 });

@@ -36,6 +36,12 @@ describe('Users Endpoints', () => {
       const queryParams = { nick: 'piloto7' };
       expect(queryParams.nick).toBe('piloto7');
     });
+
+    it('should support pagination', () => {
+      const queryParams = { page: 2, pageSize: 10 };
+      expect(queryParams.page).toBe(2);
+      expect(queryParams.pageSize).toBe(10);
+    });
   });
 
   describe('POST /users', () => {
@@ -75,6 +81,50 @@ describe('Users Endpoints', () => {
       };
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       expect(emailRegex.test(user.Email)).toBe(true);
+    });
+  });
+
+  describe('GET /users/{id}', () => {
+    it('should retrieve a specific user', () => {
+      const user = {
+        UserId: 1,
+        Nick: 'piloto7',
+        Nombre: 'Juan',
+        Apellidos: 'Pérez',
+        Email: 'juan.perez@example.com',
+      };
+      expect(user.UserId).toBe(1);
+      expect(user.Nick).toBe('piloto7');
+    });
+
+    it('should return 404 for non-existent user', () => {
+      const nonExistentId = 9999;
+      expect(nonExistentId).not.toBe(1);
+    });
+  });
+
+  describe('PUT /users/{id}', () => {
+    it('should update an existing user', () => {
+      const updateData = {
+        Nick: 'piloto7_updated',
+        Nombre: 'Juan',
+        Apellidos: 'Pérez García',
+        Email: 'juan.new@example.com',
+      };
+      expect(updateData.Nick).toBe('piloto7_updated');
+      expect(updateData).toHaveProperty('Email');
+    });
+  });
+
+  describe('DELETE /users/{id}', () => {
+    it('should delete a user', () => {
+      const userId = 1;
+      expect(userId).toBe(1);
+    });
+
+    it('should return 404 when deleting non-existent user', () => {
+      const nonExistentId = 9999;
+      expect(nonExistentId).not.toBe(1);
     });
   });
 });

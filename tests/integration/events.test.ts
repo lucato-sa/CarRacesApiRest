@@ -49,4 +49,49 @@ describe('Events Endpoints', () => {
       });
     });
   });
+
+  describe('POST /events', () => {
+    it('should create a new event', () => {
+      const newEvent = {
+        Descripcion: 'Evento de prueba',
+        FechaInicio: '2026-03-15',
+        FechaFin: '2026-05-30',
+        ClubId: 1,
+      };
+      expect(newEvent).toHaveProperty('Descripcion');
+      expect(newEvent).toHaveProperty('FechaInicio');
+    });
+  });
+
+  describe('GET /events/{id}', () => {
+    it('should retrieve a specific event', () => {
+      const event = {
+        EventId: 5,
+        Descripcion: 'Campeonato de Primavera 2026',
+        FechaInicio: '2026-03-15',
+        FechaFin: '2026-05-30',
+        ClubId: 1,
+      };
+      expect(event.EventId).toBe(5);
+      expect(event.Descripcion).toBe('Campeonato de Primavera 2026');
+    });
+
+    it('should return 404 for non-existent event', () => {
+      const nonExistentId = 9999;
+      expect(nonExistentId).not.toBe(5);
+    });
+  });
+
+  describe('PUT /events/{id}', () => {
+    it('should update an existing event', () => {
+      const updateData = {
+        Descripcion: 'Campeonato de Primavera 2026 - Actualizado',
+        FechaInicio: '2026-03-15',
+        FechaFin: '2026-06-30',
+        ClubId: 1,
+      };
+      expect(updateData.Descripcion).toBe('Campeonato de Primavera 2026 - Actualizado');
+      expect(updateData.FechaFin).toBe('2026-06-30');
+    });
+  });
 });

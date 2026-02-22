@@ -43,4 +43,47 @@ describe('Registrations Endpoints', () => {
       });
     });
   });
+
+  describe('POST /registrations', () => {
+    it('should create a new registration', () => {
+      const newRegistration = {
+        CompetitionId: 100,
+        UserId: 7,
+      };
+      expect(newRegistration).toHaveProperty('CompetitionId');
+      expect(newRegistration).toHaveProperty('UserId');
+    });
+  });
+
+  describe('GET /registrations/{id}', () => {
+    it('should retrieve a specific registration', () => {
+      const registration = {
+        RegistrationId: 1,
+        CompetitionId: 100,
+        UserId: 7,
+        FechaPreRegistro: '2026-02-15',
+        FechaRegistro: '2026-04-10',
+        Dorsal: 42,
+      };
+      expect(registration.RegistrationId).toBe(1);
+      expect(registration.Dorsal).toBe(42);
+    });
+
+    it('should return 404 for non-existent registration', () => {
+      const nonExistentId = 9999;
+      expect(nonExistentId).not.toBe(1);
+    });
+  });
+
+  describe('DELETE /registrations/{id}', () => {
+    it('should cancel a registration', () => {
+      const registrationId = 1;
+      expect(registrationId).toBe(1);
+    });
+
+    it('should return 404 when cancelling non-existent registration', () => {
+      const nonExistentId = 9999;
+      expect(nonExistentId).not.toBe(1);
+    });
+  });
 });

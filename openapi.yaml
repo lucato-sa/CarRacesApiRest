@@ -1193,5 +1193,423 @@ paths:
         '201':
           description: Created
 
-security:
-  - bearerAuth: []
+  /clubs/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [Club]
+      summary: Get Club by ID
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Club'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Club]
+      summary: Update Club
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Club'
+      responses:
+        '200':
+          description: Updated
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Club]
+      summary: Delete Club
+      responses:
+        '204':
+          description: Deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [User]
+      summary: Get User by ID
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [User]
+      summary: Update User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: Updated
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [User]
+      summary: Delete User
+      responses:
+        '204':
+          description: Deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /specialities/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [Speciality]
+      summary: Get Speciality by ID
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Speciality'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /formats:
+    get:
+      tags: [Format]
+      summary: List Formats (paginated)
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/q'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  pageSize:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Format'
+    post:
+      tags: [Format]
+      summary: Create Format
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Format'
+      responses:
+        '201':
+          description: Created
+
+  /formats/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [Format]
+      summary: Get Format by ID
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Format'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /surfaces:
+    get:
+      tags: [Surface]
+      summary: List Surfaces (paginated)
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/q'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  pageSize:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Surface'
+    post:
+      tags: [Surface]
+      summary: Create Surface
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Surface'
+      responses:
+        '201':
+          description: Created
+
+  /surfaces/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [Surface]
+      summary: Get Surface by ID
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Surface'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /disciplines/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [Discipline]
+      summary: Get Discipline by ID
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Discipline'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /divisions/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [Division]
+      summary: Get Division by ID
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Division'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /championships/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [Championship]
+      summary: Get Championship by ID
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Championship'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /competitions/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [Competition]
+      summary: Get Competition by ID
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Competition'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Competition]
+      summary: Update Competition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Competition'
+      responses:
+        '200':
+          description: Updated
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /competitions:
+    post:
+      tags: [Competition]
+      summary: Create Competition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Competition'
+      responses:
+        '201':
+          description: Created
+
+  /events/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [Event]
+      summary: Get Event by ID
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Event]
+      summary: Update Event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+      responses:
+        '200':
+          description: Updated
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /events:
+    post:
+      tags: [Event]
+      summary: Create Event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+      responses:
+        '201':
+          description: Created
+
+  /registrations/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags: [Registration]
+      summary: Get Registration by ID
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Registration'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Registration]
+      summary: Cancel Registration
+      responses:
+        '204':
+          description: Cancelled
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /registrations:
+    post:
+      tags: [Registration]
+      summary: Create Registration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Registration'
+      responses:
+        '201':
+          description: Created
+

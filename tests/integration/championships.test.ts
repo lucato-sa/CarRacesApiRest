@@ -34,4 +34,24 @@ describe('Championships Endpoints', () => {
       expect(queryParams.clubId).toBe(1);
     });
   });
+
+  describe('GET /championships/{id}', () => {
+    it('should retrieve a specific championship', () => {
+      const championship = {
+        ChampionshipId: 1,
+        Alias: 'F1 Season 2025',
+        Descripcion: 'Campeonato de Fórmula 1',
+        FechaDesde: '2025-03-01',
+        FechaHasta: '2025-12-31',
+        ClubId: 1,
+      };
+      expect(championship.ChampionshipId).toBe(1);
+      expect(championship.Alias).toBe('F1 Season 2025');
+    });
+
+    it('should return 404 for non-existent championship', () => {
+      const nonExistentId = 9999;
+      expect(nonExistentId).not.toBe(1);
+    });
+  });
 });

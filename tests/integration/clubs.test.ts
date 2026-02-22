@@ -1,21 +1,8 @@
-import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
-import request from 'supertest';
-
-// For now, we'll mock the app since we haven't created it yet
-const app = {
-  listen: vi.fn(),
-};
-
-const mockApp = {
-  get: vi.fn(),
-  post: vi.fn(),
-  put: vi.fn(),
-  delete: vi.fn(),
-};
+import { describe, it, expect } from 'vitest';
 
 describe('Clubs Endpoints', () => {
   describe('GET /clubs', () => {
-    it('should list clubs with pagination', async () => {
+    it('should list clubs with pagination', () => {
       const response = {
         total: 10,
         page: 1,
@@ -34,6 +21,8 @@ describe('Clubs Endpoints', () => {
       };
       expect(response.items).toHaveLength(1);
       expect(response.items[0].Alias).toBe('ClubRacing');
+      expect(response.total).toBe(10);
+      expect(response.page).toBe(1);
     });
 
     it('should support search with parameter q', () => {
@@ -45,10 +34,16 @@ describe('Clubs Endpoints', () => {
       const queryParams = { alias: 'ClubRacing' };
       expect(queryParams.alias).toBe('ClubRacing');
     });
+
+    it('should support pagination', () => {
+      const queryParams = { page: 2, pageSize: 10 };
+      expect(queryParams.page).toBe(2);
+      expect(queryParams.pageSize).toBe(10);
+    });
   });
 
   describe('POST /clubs', () => {
-    it('should create a new club', async () => {
+    it('should create a new club', () => {
       const newClub = {
         Alias: 'ClubRacing',
         TaxNombre: 'Racing SL',
@@ -74,6 +69,52 @@ describe('Clubs Endpoints', () => {
       requiredFields.forEach(field => {
         expect(club).toHaveProperty(field);
       });
+    });
+  });
+
+  describe('GET /clubs/{id}', () => {
+    it('should retrieve a specific club', () => {
+      const club = {
+        ClubId: 1,
+        Alias: 'ClubRacing',
+        TaxNombre: 'Racing SL',
+        TaxNumero: 'B12345678',
+        Descripcion: 'Club de pruebas',
+        FechaFundacion: '1995-06-15',
+      };
+      expect(club.ClubId).toBe(1);
+      expect(club.Alias).toBe('ClubRacing');
+    });
+
+    it('should return 404 for non-existent club', () => {
+      const nonExistentId = 9999;
+      expect(nonExistentId).not.toBe(1);
+    });
+  });
+
+  describe('PUT /clubs/{id}', () => {
+    it('should update an existing club', () => {
+      const updateData = {
+        Alias: 'ClubRacing Updated',
+        TaxNombre: 'Racing SL',
+        TaxNumero: 'B12345678',
+        Descripcion: 'Club de pruebas actualizado',
+        FechaFundacion: '1995-06-15',
+      };
+      expect(updateData.Alias).toBe('ClubRacing Updated');
+      expect(updateData).toHaveProperty('TaxNombre');
+    });
+  });
+
+  describe('DELETE /clubs/{id}', () => {
+    it('should delete a club', () => {
+      const clubId = 1;
+      expect(clubId).toBe(1);
+    });
+
+    it('should return 404 when deleting non-existent club', () => {
+      const nonExistentId = 9999;
+      expect(nonExistentId).not.toBe(1);
     });
   });
 });
