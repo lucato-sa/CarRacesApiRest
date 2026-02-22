@@ -4,7 +4,7 @@ const app = express();
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
 
 app.get('/', (_req, res) => {
-  res.type('text/plain').send('Hello Word');
+  res.type('text/plain').send('Hello Word');  
 });
 
 app.listen(port, () => {
