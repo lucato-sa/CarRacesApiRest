@@ -1,6 +1,16 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
+import { Application } from 'express';
+import { createApp } from '../../src/app';
+
+
 
 describe('Clubs Endpoints', () => {
+  let app: Application;
+
+  beforeAll(() => {
+    app = createApp();
+  });
+
   describe('GET /clubs', () => {
     it('should list clubs with pagination', () => {
       const response = {
