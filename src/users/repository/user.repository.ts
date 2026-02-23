@@ -1,3 +1,7 @@
+import { Repository } from 'typeorm';
+import { AppDataSource } from '../../database/data-source';
+import { UserEntity } from '../entities/user.entity';
+
 export type User = {
   UserId?: number;
   Nick: string;
@@ -11,83 +15,107 @@ export type User = {
 };
 
 /**
- * Repository para gestionar la persistencia de Users en memoria.
- * Implementa operaciones CRUD sin lógica de negocio.
+ * Repository con PostgreSQL para persistencia de Users
+ * Utiliza TypeORM para gestionar la conexión y operaciones SQL
  */
 export class UserRepository {
-  private users: User[] = [
-    {
-      UserId: 1,
-      Nick: 'piloto7',
-      Nombre: 'Juan',
-      Apellidos: 'Pérez',
-      Email: 'juan.perez@example.com',
-      Direccion: 'Calle Principal 123',
-      Localidad: 'Madrid',
-      Provincia: 'Madrid',
-      Pais: 'España',
-    },
-    {
-      UserId: 2,
-      Nick: 'velocidad99',
-      Nombre: 'María',
-      Apellidos: 'García',
-      Email: 'maria.garcia@example.com',
-      Direccion: 'Avenida Central 456',
-      Localidad: 'Barcelona',
-      Provincia: 'Barcelona',
-      Pais: 'España',
-    },
-  ];
+  private repository?: Repository<UserEntity>;
 
-  /**
-   * Obtiene todos los usuarios.
-   */
-  getAll(): User[] {
-    return this.users.slice();
+  private getRepository(): Repository<UserEntity> {
+    if (!this.repository) {
+      this.repository = AppDataSource.getRepository(UserEntity);
+    }
+    return this.repository;
   }
 
   /**
-   * Obtiene un usuario por ID.
+   * Obtiene todos los usuarios
    */
-  getById(id: number): User | undefined {
-    return this.users.find(u => u.UserId === id);
+  async getAll(): Promise<User[]> {
+    const entities = await this.getRepository().find({ order: { user_id: 'ASC' } });
+    return entities.map(e => this.entityToDto(e));
   }
 
   /**
-   * Obtiene un usuario por Nick.
+   * Obtiene un usuario por ID
    */
-  getByNick(nick: string): User | undefined {
-    return this.users.find(u => u.Nick === nick);
+  async getById(id: number): Promise<User | undefined> {
+    const entity = await this.getRepository().findOne({ where: { user_id: id } });
+    return entity ? this.entityToDto(entity) : undefined;
   }
 
   /**
-   * Crea un nuevo usuario.
+   * Obtiene un usuario por Nick (único)
    */
-  create(user: Omit<User, 'UserId'>): User {
-    const newId = Math.max(0, ...this.users.map(u => u.UserId || 0)) + 1;
-    const newUser: User = { ...user, UserId: newId };
-    this.users.push(newUser);
-    return newUser;
+  async getByNick(nick: string): Promise<User | undefined> {
+    const entity = await this.getRepository().findOne({ where: { nick } });
+    return entity ? this.entityToDto(entity) : undefined;
   }
 
   /**
-   * Actualiza un usuario existente.
+   * Crea un nuevo usuario
    */
-  update(id: number, user: Partial<User>): User | undefined {
-    const existing = this.users.find(u => u.UserId === id);
+  async create(user: Omit<User, 'UserId'>): Promise<User> {
+    const entity = this.getRepository().create({
+      nick: user.Nick,
+      nombre: user.Nombre,
+      apellidos: user.Apellidos,
+      email: user.Email,
+      direccion: user.Direccion,
+      localidad: user.Localidad,
+      provincia: user.Provincia,
+      pais: user.Pais,
+    });
+
+    const saved = await this.getRepository().save(entity);
+    return this.entityToDto(saved);
+  }
+
+  /**
+   * Actualiza un usuario existente
+   */
+  async update(id: number, user: Partial<User>): Promise<User | undefined> {
+    const existing = await this.getRepository().findOne({ where: { user_id: id } });
     if (!existing) return undefined;
-    Object.assign(existing, user);
-    return existing;
+
+    const updates: Partial<UserEntity> = {};
+    if (user.Nick) updates.nick = user.Nick;
+    if (user.Nombre) updates.nombre = user.Nombre;
+    if (user.Apellidos) updates.apellidos = user.Apellidos;
+    if (user.Email) updates.email = user.Email;
+    if (user.Direccion !== undefined) updates.direccion = user.Direccion;
+    if (user.Localidad !== undefined) updates.localidad = user.Localidad;
+    if (user.Provincia !== undefined) updates.provincia = user.Provincia;
+    if (user.Pais !== undefined) updates.pais = user.Pais;
+
+    await this.getRepository().update({ user_id: id }, updates);
+    const updated = await this.getRepository().findOne({ where: { user_id: id } });
+    return updated ? this.entityToDto(updated) : undefined;
   }
 
   /**
-   * Elimina un usuario.
+   * Elimina un usuario
    */
-  delete(id: number): boolean {
-    const index = this.users.findIndex(u => u.UserId === id);
-    if (index === -1) return false;
-    this.users.splice(index, 1);
-    return true;
+  async delete(id: number): Promise<boolean> {
+    const result = await this.getRepository().delete({ user_id: id });
+    return (result.affected || 0) > 0;
+  }
+
+  /**
+   * Convierte una entidad TypeORM a DTO
+   */
+  private entityToDto(entity: UserEntity): User {
+    return {
+      UserId: entity.user_id,
+      Nick: entity.nick,
+      Nombre: entity.nombre,
+      Apellidos: entity.apellidos,
+      Email: entity.email,
+      Direccion: entity.direccion,
+      Localidad: entity.localidad,
+      Provincia: entity.provincia,
+      Pais: entity.pais,
+    };
   }
 }
+

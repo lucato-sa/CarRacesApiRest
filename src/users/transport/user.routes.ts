@@ -21,9 +21,9 @@ export function createUserRoutes(repository: UserRepository): Router {
   const deleteUserUseCase = new DeleteUserUseCase(repository);
 
   // GET /api/users - listar con filtrado y paginación
-  router.get('/users', (req: Request, res: Response) => {
+  router.get('/users', async (req: Request, res: Response) => {
     try {
-      const result = listUsersUseCase.execute({
+      const result = await listUsersUseCase.execute({
         page: req.query.page ? parseInt(req.query.page as string, 10) : undefined,
         pageSize: req.query.pageSize ? parseInt(req.query.pageSize as string, 10) : undefined,
         q: req.query.q as string | undefined,
@@ -36,9 +36,9 @@ export function createUserRoutes(repository: UserRepository): Router {
   });
 
   // POST /api/users - crear usuario
-  router.post('/users', (req: Request, res: Response) => {
+  router.post('/users', async (req: Request, res: Response) => {
     try {
-      const user = createUserUseCase.execute(req.body);
+      const user = await createUserUseCase.execute(req.body);
       res.status(201).json(user);
     } catch (error) {
       res.status(400).json({ error: (error as Error).message });
@@ -46,10 +46,10 @@ export function createUserRoutes(repository: UserRepository): Router {
   });
 
   // GET /api/users/:id - obtener usuario por ID
-  router.get('/users/:id', (req: Request, res: Response) => {
+  router.get('/users/:id', async (req: Request, res: Response) => {
     try {
       const userId = parseInt(req.params.id, 10);
-      const user = getUserUseCase.execute(userId);
+      const user = await getUserUseCase.execute(userId);
       res.json(user);
     } catch (error) {
       res.status(404).json({ error: (error as Error).message });
@@ -57,10 +57,10 @@ export function createUserRoutes(repository: UserRepository): Router {
   });
 
   // PUT /api/users/:id - actualizar usuario
-  router.put('/users/:id', (req: Request, res: Response) => {
+  router.put('/users/:id', async (req: Request, res: Response) => {
     try {
       const userId = parseInt(req.params.id, 10);
-      const user = updateUserUseCase.execute(userId, req.body);
+      const user = await updateUserUseCase.execute(userId, req.body);
       res.json(user);
     } catch (error) {
       res.status(400).json({ error: (error as Error).message });
@@ -68,10 +68,10 @@ export function createUserRoutes(repository: UserRepository): Router {
   });
 
   // DELETE /api/users/:id - eliminar usuario
-  router.delete('/users/:id', (req: Request, res: Response) => {
+  router.delete('/users/:id', async (req: Request, res: Response) => {
     try {
       const userId = parseInt(req.params.id, 10);
-      deleteUserUseCase.execute(userId);
+      await deleteUserUseCase.execute(userId);
       res.status(204).send();
     } catch (error) {
       res.status(404).json({ error: (error as Error).message });

@@ -1,3 +1,10 @@
+import { Repository } from 'typeorm';
+import { AppDataSource } from '../../database/data-source';
+import { ClubEntity } from '../entities/club.entity';
+
+/**
+ * Club DTO - Formato de transferencia de datos (sin metadatos internos)
+ */
 export type Club = {
   ClubId?: number;
   Alias: string;
@@ -9,63 +16,100 @@ export type Club = {
 };
 
 /**
- * Repository para gestionar la persistencia de Clubs en memoria.
- * Implementa operaciones CRUD sin lógica de negocio.
+ * Repository con PostgreSQL para persistencia de Clubs
+ * Utiliza TypeORM para gestionar la conexión y operaciones SQL
  */
 export class ClubRepository {
-  private clubs: Club[] = [
-    {
-      ClubId: 1,
-      Alias: 'ClubRacing',
-      TaxNombre: 'Racing SL',
-      TaxNumero: 'B12345678',
-      Descripcion: 'Club de pruebas',
-      FechaFundacion: '1995-06-15',
-      default: true,
-    },
-  ];
+  private repository?: Repository<ClubEntity>;
 
-  /**
-   * Obtiene todos los clubs.
-   */
-  getAll(): Club[] {
-    return this.clubs.slice();
+  private getRepository(): Repository<ClubEntity> {
+    if (!this.repository) {
+      this.repository = AppDataSource.getRepository(ClubEntity);
+    }
+    return this.repository;
   }
 
   /**
-   * Obtiene un club por ID.
+   * Obtiene todos los clubs
    */
-  getById(id: number): Club | undefined {
-    return this.clubs.find(c => c.ClubId === id);
+  async getAll(): Promise<Club[]> {
+    const entities = await this.getRepository().find({ order: { club_id: 'ASC' } });
+    return entities.map(e => this.entityToDto(e));
   }
 
   /**
-   * Crea un nuevo club.
+   * Obtiene un club por ID
    */
-  create(club: Omit<Club, 'ClubId'>): Club {
-    const newId = Math.max(0, ...this.clubs.map(c => c.ClubId || 0)) + 1;
-    const newClub: Club = { ...club, ClubId: newId };
-    this.clubs.push(newClub);
-    return newClub;
+  async getById(id: number): Promise<Club | undefined> {
+    const entity = await this.getRepository().findOne({ where: { club_id: id } });
+    return entity ? this.entityToDto(entity) : undefined;
   }
 
   /**
-   * Actualiza un club existente.
+   * Obtiene un club por Alias (único)
    */
-  update(id: number, club: Partial<Club>): Club | undefined {
-    const existing = this.clubs.find(c => c.ClubId === id);
+  async getByAlias(alias: string): Promise<Club | undefined> {
+    const entity = await this.getRepository().findOne({ where: { alias } });
+    return entity ? this.entityToDto(entity) : undefined;
+  }
+
+  /**
+   * Crea un nuevo club
+   */
+  async create(club: Omit<Club, 'ClubId'>): Promise<Club> {
+    const entity = this.getRepository().create({
+      alias: club.Alias,
+      tax_nombre: club.TaxNombre,
+      tax_numero: club.TaxNumero,
+      descripcion: club.Descripcion,
+      fecha_fundacion: club.FechaFundacion,
+      default: club.default || false,
+    });
+
+    const saved = await this.getRepository().save(entity);
+    return this.entityToDto(saved);
+  }
+
+  /**
+   * Actualiza un club existente
+   */
+  async update(id: number, club: Partial<Club>): Promise<Club | undefined> {
+    const existing = await this.getRepository().findOne({ where: { club_id: id } });
     if (!existing) return undefined;
-    Object.assign(existing, club);
-    return existing;
+
+    const updates: Partial<ClubEntity> = {};
+    if (club.Alias) updates.alias = club.Alias;
+    if (club.TaxNombre) updates.tax_nombre = club.TaxNombre;
+    if (club.TaxNumero) updates.tax_numero = club.TaxNumero;
+    if (club.Descripcion) updates.descripcion = club.Descripcion;
+    if (club.FechaFundacion) updates.fecha_fundacion = club.FechaFundacion;
+    if (club.default !== undefined) updates.default = club.default;
+
+    await this.getRepository().update({ club_id: id }, updates);
+    const updated = await this.getRepository().findOne({ where: { club_id: id } });
+    return updated ? this.entityToDto(updated) : undefined;
   }
 
   /**
-   * Elimina un club por ID.
+   * Elimina un club
    */
-  delete(id: number): boolean {
-    const idx = this.clubs.findIndex(c => c.ClubId === id);
-    if (idx === -1) return false;
-    this.clubs.splice(idx, 1);
-    return true;
+  async delete(id: number): Promise<boolean> {
+    const result = await this.getRepository().delete({ club_id: id });
+    return (result.affected || 0) > 0;
+  }
+
+  /**
+   * Convierte una entidad TypeORM a DTO
+   */
+  private entityToDto(entity: ClubEntity): Club {
+    return {
+      ClubId: entity.club_id,
+      Alias: entity.alias,
+      TaxNombre: entity.tax_nombre,
+      TaxNumero: entity.tax_numero,
+      Descripcion: entity.descripcion,
+      FechaFundacion: entity.fecha_fundacion,
+      default: entity.default,
+    };
   }
 }

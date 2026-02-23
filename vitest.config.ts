@@ -5,5 +5,7 @@ export default defineConfig({
     environment: 'node',
     globals: true,
     include: ['tests/**/*.test.ts'],
+    // Asegurar que reflect-metadata se carga antes de los tests
+    setupFiles: ['./tests/setup.ts'],
   },
 });

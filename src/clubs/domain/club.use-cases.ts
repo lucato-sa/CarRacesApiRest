@@ -21,13 +21,13 @@ export interface ListClubsResponse {
 export class ListClubsUseCase {
   constructor(private repository: ClubRepository) {}
 
-  execute(request: ListClubsRequest): ListClubsResponse {
+  async execute(request: ListClubsRequest): Promise<ListClubsResponse> {
     const page = Math.max(1, request.page || 1);
     const pageSize = Math.max(1, request.pageSize || 20);
     const q = request.q?.toLowerCase();
     const alias = request.alias;
 
-    let clubs = this.repository.getAll();
+    let clubs = await this.repository.getAll();
 
     // Aplicar filtros (lógica de dominio)
     if (q) {
@@ -67,7 +67,7 @@ export interface CreateClubRequest {
 export class CreateClubUseCase {
   constructor(private repository: ClubRepository) {}
 
-  execute(request: CreateClubRequest): Club {
+  async execute(request: CreateClubRequest): Promise<Club> {
     // Validaciones de negocio
     if (!request.Alias || !request.TaxNombre || !request.TaxNumero || !request.Descripcion || !request.FechaFundacion) {
       throw new Error('Missing required fields');

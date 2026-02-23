@@ -21,13 +21,13 @@ export interface ListUsersResponse {
 export class ListUsersUseCase {
   constructor(private repository: UserRepository) {}
 
-  execute(request: ListUsersRequest): ListUsersResponse {
+  async execute(request: ListUsersRequest): Promise<ListUsersResponse> {
     const page = Math.max(1, request.page || 1);
     const pageSize = Math.max(1, request.pageSize || 20);
     const q = request.q?.toLowerCase();
     const nick = request.nick;
 
-    let users = this.repository.getAll();
+    let users = await this.repository.getAll();
 
     // Aplicar filtros (lógica de dominio)
     if (q) {
@@ -74,7 +74,7 @@ export interface CreateUserRequest {
 export class CreateUserUseCase {
   constructor(private repository: UserRepository) {}
 
-  execute(request: CreateUserRequest): User {
+  async execute(request: CreateUserRequest): Promise<User> {
     // Validaciones de negocio
     if (!request.Nick || !request.Nombre || !request.Apellidos || !request.Email) {
       throw new Error('Missing required fields: Nick, Nombre, Apellidos, Email');
@@ -87,7 +87,7 @@ export class CreateUserUseCase {
     }
 
     // Validar Nick único
-    if (this.repository.getByNick(request.Nick)) {
+    if (await this.repository.getByNick(request.Nick)) {
       throw new Error('Nick already exists');
     }
 
@@ -122,8 +122,8 @@ export interface UpdateUserRequest {
 export class UpdateUserUseCase {
   constructor(private repository: UserRepository) {}
 
-  execute(id: number, request: UpdateUserRequest): User {
-    const user = this.repository.getById(id);
+  async execute(id: number, request: UpdateUserRequest): Promise<User> {
+    const user = await this.repository.getById(id);
     if (!user) {
       throw new Error('User not found');
     }
@@ -138,12 +138,16 @@ export class UpdateUserUseCase {
 
     // Validar Nick único si se proporciona
     if (request.Nick && request.Nick !== user.Nick) {
-      if (this.repository.getByNick(request.Nick)) {
+      if (await this.repository.getByNick(request.Nick)) {
         throw new Error('Nick already exists');
       }
     }
 
-    return this.repository.update(id, request) as User;
+    const updated = await this.repository.update(id, request);
+    if (!updated) {
+      throw new Error('Failed to update user');
+    }
+    return updated;
   }
 }
 
@@ -153,8 +157,8 @@ export class UpdateUserUseCase {
 export class DeleteUserUseCase {
   constructor(private repository: UserRepository) {}
 
-  execute(id: number): boolean {
-    const user = this.repository.getById(id);
+  async execute(id: number): Promise<boolean> {
+    const user = await this.repository.getById(id);
     if (!user) {
       throw new Error('User not found');
     }
@@ -168,8 +172,8 @@ export class DeleteUserUseCase {
 export class GetUserUseCase {
   constructor(private repository: UserRepository) {}
 
-  execute(id: number): User {
-    const user = this.repository.getById(id);
+  async execute(id: number): Promise<User> {
+    const user = await this.repository.getById(id);
     if (!user) {
       throw new Error('User not found');
     }
