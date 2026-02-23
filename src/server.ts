@@ -9,19 +9,28 @@ const port = process.env.PORT ? Number(process.env.PORT) : 3000;
  */
 async function startServer() {
   try {
-    // Inicializar conexión a PostgreSQL
+    // Inicializar conexión a PostgreSQL/Supabase
+    console.log('📡 Conectando a base de datos...');
+    console.log(`   Host: ${process.env.DB_HOST}`);
+    console.log(`   Puerto: ${process.env.DB_PORT}`);
+    console.log(`   BD: ${process.env.DB_NAME}`);
+    
     await AppDataSource.initialize();
     // eslint-disable-next-line no-console
-    console.log('✅ PostgreSQL connected successfully');
+    console.log('✅ PostgreSQL/Supabase conectado exitosamente');
 
     // Iniciar servidor Express
     app.listen(port, () => {
       // eslint-disable-next-line no-console
-      console.log(`🚀 Server listening on http://localhost:${port}`);
+      console.log(`🚀 Servidor escuchando en http://localhost:${port}`);
+      console.log(`📊 18 tablas disponibles desde la base de datos`);
     });
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.error('❌ Failed to start server:', error);
+    console.error('❌ Error al iniciar servidor:', error);
+    if (error instanceof Error) {
+      console.error('   Detalles:', error.message);
+    }
     process.exit(1);
   }
 }

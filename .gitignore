@@ -1,6 +1,7 @@
 # Ignorar archivos temporales de editor
 *~ 
 *.swp
+*.env.*
 
 # Ignorar dependencias
 node_modules/
