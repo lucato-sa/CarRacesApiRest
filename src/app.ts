@@ -1,4 +1,5 @@
 import express, { Application } from 'express';
+import { loggerMiddleware } from './middleware/logger.middleware';
 import { ClubRepository } from './clubs/repository/club.repository';
 import { createClubRoutes } from './clubs/transport/club.routes';
 import { UserRepository } from './users/repository/user.repository';
@@ -42,6 +43,9 @@ import { createRolEntityRoutes } from './rolentities/transport/rolentity.routes'
 export function createApp(): Application {
   const app = express();
   app.use(express.json());
+
+  // === MIDDLEWARE: Logger ===
+  app.use(loggerMiddleware);
 
   // === PERSISTENCIA: Inicializar repositorios ===
   const clubRepository = new ClubRepository();
