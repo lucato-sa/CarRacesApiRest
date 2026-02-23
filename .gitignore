@@ -1,11 +1,10 @@
 # Ignorar archivos temporales de editor
 *~ 
 *.swp
-*.env.*
 
 # Ignorar dependencias
 node_modules/
 vendor/
 
 # Ignorar archivos de configuración local
-# .env
+.env
