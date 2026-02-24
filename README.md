@@ -12,3 +12,6 @@ PROYECTO - FUNDAE
 Pendiente de la revisión global de Carlos Torre . 
 
 Estoy terminando resumiendo mejor la documentación.
+
+
+He encontrado un error en la BBDD, tengo que revisarlo !!!!!
