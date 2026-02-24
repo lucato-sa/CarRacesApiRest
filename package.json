@@ -9,9 +9,9 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev": "ts-node-dev --respawn --transpile-only --require dotenv/config src/server.ts",
     "test": "vitest",
-    "test:connection": "ts-node-dev test-connection.ts"
+    "test:connection": "ts-node-dev --require dotenv/config test-connection.ts"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
@@ -23,6 +23,7 @@
     "vitest": "^4.0.18"
   },
   "dependencies": {
+    "dotenv": "^17.3.1",
     "express": "^4.18.2",
     "pg": "^8.18.0",
     "reflect-metadata": "^0.2.2",
