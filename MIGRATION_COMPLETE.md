@@ -299,7 +299,28 @@ async execute(request: Request): Promise<Response> {
 
 ---
 
-## 🚀 **Comando para Empezar**
+## � **Cambios Recientes (24/02/2026)**
+
+### Testing Script Mejorado
+- ✅ Convertido `test-connection.js` → `test-connection.ts`
+- ✅ Uso de ES6 imports en lugar de CommonJS require
+- ✅ Tipado completo de TypeScript para mayor robustez
+- ✅ Nuevo script npm: `npm run test:connection`
+- ✅ Ejecuta con `ts-node-dev` para transpilación automática
+
+**Razón:** Node.js no puede importar módulos TypeScript desde archivos JavaScript. La solución es usar TypeScript para el script de prueba.
+
+```bash
+# Antes
+node test-connection.js   # ❌ Error: Cannot find module
+
+# Ahora
+npm run test:connection   # ✅ Funciona correctamente
+```
+
+---
+
+## �🚀 **Comando para Empezar**
 
 ```bash
 # Setup
@@ -307,7 +328,10 @@ cp .env.example .env
 docker run ... postgres:15      # Start DB
 npm install                      # Dependencies already installed
 
-# Test
+# Test DB Connection
+npm run test:connection         # ✅ Prueba conexión a Supabase/PostgreSQL
+
+# Run Tests
 npm test -- --run               # ✅ 111 passing
 
 # Run
