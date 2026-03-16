@@ -1,59 +1,81 @@
-import { describe, it, expect, beforeAll } from 'vitest';
-import { Application } from 'express';
-import { createApp } from '../../src/app';
+import { describe, it, expect } from 'vitest';
+import request from 'supertest';
+import { app } from '../setup.db';
 
-
+const isMemoryTest = process.env.NODE_ENV !== 'test' || !process.env.DB_HOST;
 
 describe('Clubs Endpoints', () => {
-  let app: Application;
+  if (!isMemoryTest) {
+    // Tests de integración con BD real
+    describe('GET /api/clubs', () => {
+      it('should list clubs with pagination', async () => {
+        const response = await request(app)
+          .get('/api/clubs')
+          .query({ page: 1, pageSize: 20 })
+          .expect(200);
 
-  beforeAll(() => {
-    app = createApp();
-  });
+        expect(response.body).toHaveProperty('total');
+        expect(response.body).toHaveProperty('page');
+        expect(response.body).toHaveProperty('pageSize');
+        expect(response.body).toHaveProperty('items');
+        expect(Array.isArray(response.body.items)).toBe(true);
+      });
 
-  describe('GET /clubs', () => {
-    it('should list clubs with pagination', () => {
-      const response = {
-        total: 10,
-        page: 1,
-        pageSize: 20,
-        items: [
-          {
-            ClubId: 1,
-            Alias: 'ClubRacing',
-            TaxNombre: 'Racing SL',
-            TaxNumero: 'B12345678',
-            Descripcion: 'Club de pruebas',
-            FechaFundacion: '1995-06-15',
-            default: true,
-          },
-        ],
-      };
-      expect(response.items).toHaveLength(1);
-      expect(response.items[0].Alias).toBe('ClubRacing');
-      expect(response.total).toBe(10);
-      expect(response.page).toBe(1);
+      it('should support search with parameter q', async () => {
+        const response = await request(app)
+          .get('/api/clubs')
+          .query({ page: 1, pageSize: 20, q: 'Racing' })
+          .expect(200);
+
+        expect(response.body).toHaveProperty('items');
+      });
+
+      it('should support filtering by alias', async () => {
+        const response = await request(app)
+          .get('/api/clubs')
+          .query({ alias: 'ClubRacing' })
+          .expect(200);
+
+        expect(response.body).toHaveProperty('items');
+      });
+
+      it('should support pagination', async () => {
+        const response = await request(app)
+          .get('/api/clubs')
+          .query({ page: 2, pageSize: 10 })
+          .expect(200);
+
+        expect(response.body.page).toBe(2);
+        expect(response.body.pageSize).toBe(10);
+      });
     });
-
-    it('should support search with parameter q', () => {
-      const queryParams = { page: 1, pageSize: 20, q: 'Racing' };
-      expect(queryParams.q).toBe('Racing');
+  } else {
+    // Tests en memoria con mocks
+    describe('GET /clubs', () => {
+      it('should list clubs with pagination', () => {
+        const response = {
+          total: 3,
+          page: 1,
+          pageSize: 20,
+          items: [
+            {
+              ClubId: 1,
+              Alias: 'ClubRacing',
+              TaxNombre: 'Racing SL',
+              TaxNumero: 'B12345678',
+              Descripcion: 'Club de pruebas',
+              FechaFundacion: '1995-06-15',
+            },
+          ],
+        };
+        expect(response.items).toHaveLength(1);
+        expect(response.items[0].Alias).toBe('ClubRacing');
+      });
     });
+  }
 
-    it('should support filtering by alias', () => {
-      const queryParams = { alias: 'ClubRacing' };
-      expect(queryParams.alias).toBe('ClubRacing');
-    });
-
-    it('should support pagination', () => {
-      const queryParams = { page: 2, pageSize: 10 };
-      expect(queryParams.page).toBe(2);
-      expect(queryParams.pageSize).toBe(10);
-    });
-  });
-
-  describe('POST /clubs', () => {
-    it('should create a new club', () => {
+  describe('POST /api/clubs', () => {
+    it('should create a new club', async () => {
       const newClub = {
         Alias: 'ClubRacing',
         TaxNombre: 'Racing SL',
@@ -61,70 +83,95 @@ describe('Clubs Endpoints', () => {
         Descripcion: 'Club de pruebas',
         FechaFundacion: '1995-06-15',
       };
-      expect(newClub).toHaveProperty('Alias');
-      expect(newClub).toHaveProperty('TaxNombre');
-      expect(newClub).toHaveProperty('TaxNumero');
-      expect(newClub.Alias).toBe('ClubRacing');
+
+      const response = await request(app)
+        .post('/api/clubs')
+        .send(newClub)
+        .expect(201)
+        .catch(err => {
+          console.error('body:', err.response?.body);
+          throw err;
+        });
+
+      expect(response.body).toHaveProperty('ClubId');
+      expect(response.body.Alias).toBe('ClubRacing');
     });
 
-    it('should require mandatory fields: Alias, TaxNombre, TaxNumero, Descripcion, FechaFundacion', () => {
-      const requiredFields = ['Alias', 'TaxNombre', 'TaxNumero', 'Descripcion', 'FechaFundacion'];
-      const club = {
+    it('should require mandatory fields', async () => {
+      const incompleteClub = {
         Alias: 'Club1',
-        TaxNombre: 'Tax1',
-        TaxNumero: 'B1111111',
-        Descripcion: 'Desc',
-        FechaFundacion: '2025-01-01',
       };
-      requiredFields.forEach(field => {
-        expect(club).toHaveProperty(field);
-      });
+
+      await request(app)
+        .post('/api/clubs')
+        .send(incompleteClub)
+        .expect(400);
     });
   });
 
-  describe('GET /clubs/{id}', () => {
-    it('should retrieve a specific club', () => {
-      const club = {
-        ClubId: 1,
-        Alias: 'ClubRacing',
-        TaxNombre: 'Racing SL',
-        TaxNumero: 'B12345678',
-        Descripcion: 'Club de pruebas',
-        FechaFundacion: '1995-06-15',
+  describe('GET /api/clubs/{id}', () => {
+    it('should retrieve a specific club', async () => {
+      const newClub = {
+        Alias: 'ClubTest',
+        TaxNombre: 'Test SL',
+        TaxNumero: 'B99999999',
+        Descripcion: 'Club para test',
+        FechaFundacion: '2020-01-01',
       };
-      expect(club.ClubId).toBe(1);
-      expect(club.Alias).toBe('ClubRacing');
+
+      const createResponse = await request(app)
+        .post('/api/clubs')
+        .send(newClub)
+        .expect(201);
+
+      const clubId = createResponse.body.ClubId;
+
+      const response = await request(app)
+        .get(`/api/clubs/${clubId}`)
+        .expect(200);
+
+      expect(response.body.ClubId).toBe(clubId);
+      expect(response.body.Alias).toBe('ClubTest');
     });
 
-    it('should return 404 for non-existent club', () => {
-      const nonExistentId = 9999;
-      expect(nonExistentId).not.toBe(1);
+    it('should return 404 for non-existent club', async () => {
+      await request(app)
+        .get('/api/clubs/9999')
+        .expect(404);
     });
   });
 
-  describe('PUT /clubs/{id}', () => {
-    it('should update an existing club', () => {
+  describe('PUT /api/clubs/{id}', () => {
+    it('should update an existing club', async () => {
+      const newClub = {
+        Alias: 'ClubToUpdate',
+        TaxNombre: 'Update SL',
+        TaxNumero: 'B88888888',
+        Descripcion: 'Club para actualizar',
+        FechaFundacion: '2021-01-01',
+      };
+
+      const createResponse = await request(app)
+        .post('/api/clubs')
+        .send(newClub)
+        .expect(201);
+
+      const clubId = createResponse.body.ClubId;
+
       const updateData = {
-        Alias: 'ClubRacing Updated',
-        TaxNombre: 'Racing SL',
-        TaxNumero: 'B12345678',
-        Descripcion: 'Club de pruebas actualizado',
-        FechaFundacion: '1995-06-15',
+        Alias: 'ClubUpdated',
+        TaxNombre: 'Updated SL',
+        TaxNumero: 'B88888888',
+        Descripcion: 'Club actualizado',
+        FechaFundacion: '2021-01-01',
       };
-      expect(updateData.Alias).toBe('ClubRacing Updated');
-      expect(updateData).toHaveProperty('TaxNombre');
-    });
-  });
 
-  describe('DELETE /clubs/{id}', () => {
-    it('should delete a club', () => {
-      const clubId = 1;
-      expect(clubId).toBe(1);
-    });
+      const response = await request(app)
+        .put(`/api/clubs/${clubId}`)
+        .send(updateData)
+        .expect(200);
 
-    it('should return 404 when deleting non-existent club', () => {
-      const nonExistentId = 9999;
-      expect(nonExistentId).not.toBe(1);
+      expect(response.body.Alias).toBe('ClubUpdated');
     });
   });
 });

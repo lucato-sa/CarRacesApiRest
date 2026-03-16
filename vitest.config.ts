@@ -1,11 +1,21 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
     environment: 'node',
     globals: true,
-    include: ['tests/**/*.test.ts'],
-    // Asegurar que reflect-metadata se carga antes de los tests
-    setupFiles: ['./tests/setup.ts'],
+    include: ['__tests__/**/*.test.ts'],
+    
+    // Load setup file before tests
+    setupFiles: ['./__tests__/setup.ts'],
+    
+    // Environment variables for backend selection
+    env: {
+      BACKEND: process.env.BACKEND || 'memory'
+    },
+    
+    // Test timeout
+    testTimeout: 10000,
+    hookTimeout: 10000,
   },
-});
+})

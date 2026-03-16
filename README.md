@@ -11,7 +11,10 @@ PROYECTO - FUNDAE
 
 Pendiente de la revisión global de Carlos Torre . 
 
+Voy a refactorizar la implementación de los tests para optimizarlos en distintos backends.
+
 Estoy terminando resumiendo mejor la documentación.
+
 
 
 He encontrado un error en la BBDD, tengo que revisarlo !!!!!
