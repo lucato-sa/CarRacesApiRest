@@ -5,6 +5,8 @@
 # Ignorar dependencias
 node_modules/
 vendor/
+test-data/
+z-eliminados/
 
 # Ignorar archivos de configuración local
 .env
