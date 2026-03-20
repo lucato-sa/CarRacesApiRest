@@ -5,25 +5,25 @@
  * Datos de prueba centralizados para ApiCarRaces (16 entidades)
  */
 
-// Importar tipos de repositorios
-import { User } from '../../src/users/repository/user.repository';
-import { Club } from '../../src/clubs/repository/club.repository';
-import { Race } from '../../src/races/repository/race.repository';
-import { Competition } from '../../src/competitions/repository/competition.repository';
-import { Championship } from '../../src/championships/repository/championship.repository';
-import { Event } from '../../src/events/repository/event.repository';
-import { Registration } from '../../src/registrations/repository/registration.repository';
-import { Discipline } from '../../src/disciplines/repository/discipline.repository';
-import { Format } from '../../src/formats/repository/format.repository';
-import { Surface } from '../../src/surfaces/repository/surface.repository';
-import { Division } from '../../src/divisions/repository/division.repository';
-import { Role } from '../../src/roles/repository/role.repository';
-import { RolEntity } from '../../src/rolentities/repository/rolentity.repository';
-import { UserEntity } from '../../src/userentities/repository/userentity.repository';
-import { RaceResult } from '../../src/raceresults/repository/raceresult.repository';
-import { EntityLink } from '../../src/entitylinks/repository/entitylink.repository';
-import { Speciality } from '../../src/specialities/repository/speciality.repository';
-import { DrivingEnvironment } from '../../src/drivingenviroments/repository/drivingenvironment.repository';
+// Importar tipos de modelos
+import { User } from '../../src/users/models/user.model';
+import { Club } from '../../src/clubs/models/club.model';
+import { Race } from '../../src/races/models/race.model';
+import { Competition } from '../../src/competitions/models/competition.model';
+import { Championship } from '../../src/championships/models/championship.model';
+import { Event } from '../../src/events/models/event.model';
+import { Registration } from '../../src/registrations/models/registration.model';
+import { Discipline } from '../../src/disciplines/models/discipline.model';
+import { Format } from '../../src/formats/models/format.model';
+import { Surface } from '../../src/surfaces/models/surface.model';
+import { Division } from '../../src/divisions/models/division.model';
+import { Role } from '../../src/roles/models/role.model';
+import { RoleEntity } from '../../src/rolentities/models/roleentity.model';
+import { UserEntity } from '../../src/userentities/models/userentity.model';
+import { RaceResult } from '../../src/raceresults/models/raceresult.model';
+import { EntityLink } from '../../src/entitylinks/models/entitylink.model';
+import { Speciality } from '../../src/specialities/models/speciality.model';
+import { DrivingEnvironment } from '../../src/drivingenviroments/models/drivingenvironment.model';
 
 export const validUser: Partial<User> = {
   Nick: 'piloto_juan',
@@ -31,7 +31,7 @@ export const validUser: Partial<User> = {
   Apellidos: 'Pérez García',
   Email: 'juan.perez@example.com',
   Direccion: 'Calle Principal 123',
-  Localidad: 'Madrid',
+  Localidad: 'Madrid',  
   Provincia: 'Madrid',
   Pais: 'España',
 }
@@ -65,22 +65,32 @@ export const invalidEmailUser = {
  */
 
 export const validClub = {
+  Alias:'Carreras Madrid',
+  TaxNombre:'Club oficial de carreras en Madrid',
+  TaxNumero:'212113141',
+  Descripcion:'Test Carrreras Madrid',
+  FechaFundacion:'2026-02-23'
+}
+
+/*export const validClub = {
   ClubName: 'Club de Carreras Madrid',
   Descripcion: 'Club oficial de carreras en Madrid',
   Ubicacion: 'Madrid, España',
   FundacionAnio: 2010,
 }
+*/  
 
 export const secondClub = {
-  ClubName: 'Circuit Barcelona',
-  Descripcion: 'Club especializado en circuitos',
-  Ubicacion: 'Barcelona, España',
-  FundacionAnio: 2005,
+  Alias: 'Circuit Barcelona',
+  TaxNombre: 'Club especializado en circuitos',
+  TaxNumero: '212113142',
+  Descripcion: 'Club de Barcelona',
+  FechaFundacion: '2005-06-15',
 }
 
 export const incompleteClub = {
-  ClubName: 'Incomplete Club',
-  // Falta Descripcion
+  Alias: 'Incomplete Club',
+  // Falta TaxNombre, TaxNumero, Descripcion, FechaFundacion
 }
 
 /**
@@ -90,28 +100,24 @@ export const incompleteClub = {
  */
 
 export const validRace = {
-  RaceName: 'Grand Prix Madrid 2024',
-  Descripcion: 'Carrera principal de la temporada',
-  FechaInicio: '2024-06-15T10:00:00Z',
-  FechaFin: '2024-06-15T14:00:00Z',
-  Ubicacion: 'Circuito de Madrid',
-  ChampionshipId: 1,
-  DisciplineId: 1,
+  CompetitionId: 1,
+  NumRace: 1,
+  Fecha: '2024-03-16',
+  Hora: '10:00:00',
+  Estado: 'completada',
 }
 
 export const secondRace = {
-  RaceName: 'Qualifying Round Barcelona',
-  Descripcion: 'Ronda de clasificación en Barcelona',
-  FechaInicio: '2024-06-22T09:00:00Z',
-  FechaFin: '2024-06-22T13:00:00Z',
-  Ubicacion: 'Circuito de Barcelona',
-  ChampionshipId: 1,
-  DisciplineId: 1,
+  CompetitionId: 1,
+  NumRace: 2,
+  Fecha: '2024-03-17',
+  Hora: '14:00:00',
+  Estado: 'completada',
 }
 
 export const incompleteRace = {
-  RaceName: 'Incomplete Race',
-  // Falta FechaInicio, FechaFin, etc.
+  CompetitionId: 1,
+  // Falta NumRace y Fecha
 }
 
 /**
@@ -121,24 +127,18 @@ export const incompleteRace = {
  */
 
 export const validCompetition = {
+  Alias: 'Competencia Nacional 2024',
   Descripcion: 'Campeonato Nacional de Carreras 2024',
-  FechaInicio: '2024-01-01',
-  FechaFin: '2024-12-31',
-  MaxParticipantes: 100,
-  ClubId: 1,
 }
 
 export const secondCompetition = {
+  Alias: 'Copa Regional',
   Descripcion: 'Copa Regional de Speed',
-  FechaInicio: '2024-03-01',
-  FechaFin: '2024-09-30',
-  MaxParticipantes: 50,
-  ClubId: 2,
 }
 
 export const incompleteCompetition = {
   Descripcion: 'Incomplete Competition',
-  // Falta FechaInicio, FechaFin
+  // Falta Alias (requerido)
 }
 
 /**
@@ -148,20 +148,14 @@ export const incompleteCompetition = {
  */
 
 export const validChampionship = {
-  Descripcion: 'Campeonato Oficial 2024',
-  DrivingEnviromentId: 1,
-  SpecialityId: 1,
-  DisciplineId: 1,
-  DivisionId: 1,
+  Alias: 'Campeonato Oficial 2024',
+  Descripcion: 'Campeonato Oficial Temporada 2024',
   ClubId: 1,
 }
 
 export const secondChampionship = {
-  Descripcion: 'Liga de Aficionados',
-  DrivingEnviromentId: 1,
-  SpecialityId: 2,
-  DisciplineId: 2,
-  DivisionId: 2,
+  Alias: 'Liga de Aficionados',
+  Descripcion: 'Liga de Aficionados 2024',
   ClubId: 2,
 }
 
@@ -172,21 +166,17 @@ export const secondChampionship = {
  */
 
 export const validEvent = {
-  EventName: 'Event Inauguración 2024',
   Descripcion: 'Evento de inauguración de temporada',
-  FechaEvento: '2024-01-15',
-  Ubicacion: 'Circuito Oficial',
-  CompetitionId: 1,
-  ChampionshipId: 1,
+  FechaInicio: '2024-01-15',
+  FechaFin: '2024-01-15',
+  ClubId: 1,
 }
 
 export const secondEvent = {
-  EventName: 'Event Final Season',
   Descripcion: 'Evento de cierre de temporada',
-  FechaEvento: '2024-12-20',
-  Ubicacion: 'Circuito Nacional',
-  CompetitionId: 1,
-  ChampionshipId: 1,
+  FechaInicio: '2024-12-20',
+  FechaFin: '2024-12-20',
+  ClubId: 1,
 }
 
 /**
@@ -196,18 +186,16 @@ export const secondEvent = {
  */
 
 export const validRegistration = {
-  UserId: 1,
   CompetitionId: 1,
-  EventId: 1,
-  FechaRegistro: new Date().toISOString(),
+  UserId: 1,
+  FechaRegistro: '2024-01-10',
   Estado: 'ACTIVO',
 }
 
 export const secondRegistration = {
-  UserId: 2,
   CompetitionId: 1,
-  EventId: 1,
-  FechaRegistro: new Date().toISOString(),
+  UserId: 2,
+  FechaRegistro: '2024-01-11',
   Estado: 'ACTIVO',
 }
 
@@ -219,20 +207,16 @@ export const secondRegistration = {
 
 export const validDiscipline = {
   Alias: 'RALLY',
-  Descripcion: 'Rally (Carrera en carreteras)',
   SpecialityId: 1,
   FormatId: 1,
   SurfaceId: 1,
-  default: false,
 }
 
 export const secondDiscipline = {
   Alias: 'CIRCUIT',
-  Descripcion: 'Circuito (Carrera en circuito cerrado)',
   SpecialityId: 1,
   FormatId: 2,
   SurfaceId: 2,
-  default: false,
 }
 
 /**
@@ -242,13 +226,13 @@ export const secondDiscipline = {
  */
 
 export const validFormat = {
-  Descripcion: 'Formato de carrera - 2 mangas',
-  default: false,
+  Alias: 'Dos mangas',
+  Descripcion: 'Formato de carrera con 2 mangas',
 }
 
 export const secondFormat = {
-  Descripcion: 'Formato de carrera - Final única',
-  default: true,
+  Alias: 'Final única',
+  Descripcion: 'Formato de carrera con final única',
 }
 
 /**
@@ -258,13 +242,13 @@ export const secondFormat = {
  */
 
 export const validSurface = {
-  Descripcion: 'Asfalto',
-  default: true,
+  Alias: 'Asfalto',
+  Descripcion: 'Superficie de asfalto',
 }
 
 export const secondSurface = {
-  Descripcion: 'Tierra/Gravilla',
-  default: false,
+  Alias: 'Tierra',
+  Descripcion: 'Superficie de tierra/gravilla',
 }
 
 /**
@@ -274,17 +258,15 @@ export const secondSurface = {
  */
 
 export const validDivision = {
+  Alias: 'Junior',
   Descripcion: 'División Junior',
   DisciplineId: 1,
-  ClubId: 1,
-  default: false,
 }
 
 export const secondDivision = {
+  Alias: 'Senior',
   Descripcion: 'División Senior',
   DisciplineId: 1,
-  ClubId: 1,
-  default: true,
 }
 
 /**
@@ -294,15 +276,13 @@ export const secondDivision = {
  */
 
 export const validRole = {
-  RoleId: 1,
-  RoleName: 'PILOTO',
-  Descripcion: 'Piloto de carrera',
+  Nombre: 'PILOTO',
+  Pseudonimo: 'Piloto de carrera',
 }
 
 export const secondRole = {
-  RoleId: 2,
-  RoleName: 'MECANICO',
-  Descripcion: 'Mecánico de equipo',
+  Nombre: 'MECANICO',
+  Pseudonimo: 'Mecánico de equipo',
 }
 
 /**
@@ -312,15 +292,13 @@ export const secondRole = {
  */
 
 export const validRolEntity = {
-  RoleId: 1,
-  EntityType: 'USER',
-  EntityId: 1,
+  EntityLinkId: 1,
+  RolId: 1,
 }
 
 export const secondRolEntity = {
-  RoleId: 2,
-  EntityType: 'CLUB',
-  EntityId: 1,
+  EntityLinkId: 2,
+  RolId: 2,
 }
 
 /**
@@ -331,16 +309,14 @@ export const secondRolEntity = {
 
 export const validUserEntity = {
   UserId: 1,
-  EntityType: 'CLUB',
-  EntityId: 1,
-  Rol: 'MIEMBRO',
+  EntityLinkId: 1,
+  RolId: 1,
 }
 
 export const secondUserEntity = {
   UserId: 2,
-  EntityType: 'COMPETITION',
-  EntityId: 1,
-  Rol: 'PARTICIPANTE',
+  EntityLinkId: 2,
+  RolId: 2,
 }
 
 /**
@@ -353,18 +329,18 @@ export const validRaceResult = {
   RaceId: 1,
   UserId: 1,
   Posicion: 1,
-  Tiempo: 120.45,
-  Puntos: 10,
-  Estado: 'FINALIZADO',
+  Vueltas: 50,
+  PrimeraLinea: true,
+  VueltaRapida: false,
 }
 
 export const secondRaceResult = {
   RaceId: 1,
   UserId: 2,
   Posicion: 2,
-  Tiempo: 121.30,
-  Puntos: 8,
-  Estado: 'FINALIZADO',
+  Vueltas: 49,
+  PrimeraLinea: false,
+  VueltaRapida: true,
 }
 
 /**
@@ -374,10 +350,13 @@ export const secondRaceResult = {
  */
 
 export const validEntityLink = {
-  SourceEntity: 'RACE',
-  SourceId: 1,
-  TargetEntity: 'CHAMPIONSHIP',
-  TargetId: 1,
+  EntityName: 'RACE',
+  EntityId: 1,
+}
+
+export const secondEntityLink = {
+  EntityName: 'CHAMPIONSHIP',
+  EntityId: 1,
 }
 
 /**
@@ -389,13 +368,13 @@ export const validEntityLink = {
 export const validSpeciality = {
   Alias: 'ROAD_RACING',
   Descripcion: 'Carreras en carretera',
-  default: false,
+  Default: false,
 }
 
 export const secondSpeciality = {
   Alias: 'CIRCUIT_RACING',
   Descripcion: 'Carreras en circuito',
-  default: true,
+  Default: true,
 }
 
 /**
@@ -407,13 +386,13 @@ export const secondSpeciality = {
 export const validDrivingEnvironment = {
   Alias: 'COCHES_TURISMO',
   Descripcion: 'Conducción de turismos',
-  default: true,
+  Default: true,
 }
 
 export const secondDrivingEnvironment = {
   Alias: 'MOTOS',
   Descripcion: 'Conducción de motocicletas',
-  default: false,
+  Default: false,
 }
 
 /**

@@ -1,4 +1,3 @@
-import 'reflect-metadata'
 import { config } from 'dotenv'
 
 /**
@@ -6,7 +5,6 @@ import { config } from 'dotenv'
  * 
  * This file is executed before all tests via vitest configuration
  * It handles:
- * - Loading reflect-metadata for TypeORM
  * - Loading environment variables based on backend type
  * - Logging test configuration
  */
@@ -22,7 +20,6 @@ config({ path: envFile })
 console.log('\n' + '='.repeat(50))
 console.log('🧪 TEST CONFIGURATION')
 console.log('='.repeat(50))
-console.log(`✅ Reflect-metadata loaded`)
 console.log(`✅ Backend: ${backendType.toUpperCase()}`)
 console.log(`✅ Env file: ${envFile}`)
 console.log('='.repeat(50) + '\n')

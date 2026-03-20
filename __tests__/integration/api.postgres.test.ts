@@ -3,7 +3,6 @@ import { Express } from 'express'
 import { PostgresBackend } from '../../src/backends/PostgresBackend'
 import { createTestApp } from '../cases/setupApp'
 import { allTestCases } from '../cases/testCases'
-import { AppDataSource } from '../../src/database/data-source'
 
 // Only run this test suite when BACKEND=postgres
 const skipPostgresTests = process.env.BACKEND !== 'postgres'
@@ -15,12 +14,8 @@ describe.skipIf(skipPostgresTests)('API Integration - PostgreSQL Backend', () =>
   beforeAll(async () => {
     console.log('🐘 Starting PostgreSQL Backend tests...')
     
-    // Initialize DataSource if not already initialized
-    if (!AppDataSource.isInitialized) {
-      await AppDataSource.initialize()
-    }
-    
-    backend = new PostgresBackend(AppDataSource)
+    // Initialize PostgreSQL backend
+    backend = new PostgresBackend()
     await backend.initialize()
     app = await createTestApp(backend)
     console.log('✅ PostgreSQL Backend initialized')
@@ -28,12 +23,6 @@ describe.skipIf(skipPostgresTests)('API Integration - PostgreSQL Backend', () =>
 
   afterAll(async () => {
     await backend.close()
-    
-    // Close DataSource if initialized
-    if (AppDataSource.isInitialized) {
-      await AppDataSource.destroy()
-    }
-    
     console.log('✅ PostgreSQL Backend closed')
   })
 

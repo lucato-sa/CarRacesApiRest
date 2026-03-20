@@ -1,121 +1,249 @@
-import { Repository } from 'typeorm';
-import { AppDataSource } from '../../database/data-source';
-import { UserEntity } from '../entities/user.entity';
+﻿/**
+ * ðŸ—„ï¸ User Repository - SQL Nativo con 'pg'
+ * 
+ * Acceso a datos usando SQL explÃ­cito
+ * âœ… Control total de queries
+ * âœ… FÃ¡cil debugging
+ * âœ… Mejor performance
+ */
 
-export type User = {
-  UserId?: number;
-  Nick: string;
-  Nombre: string;
-  Apellidos: string;
-  Email: string;
-  Direccion?: string;
-  Localidad?: string;
-  Provincia?: string;
-  Pais?: string;
-};
+import { queryAll, queryOne, executeQuery } from '../../database/data-source';
+import { User, CreateUserInput, UpdateUserInput, UserRow } from '../models/user.model';
+import { dbToDto } from '../../config/database.config';
 
 /**
- * Repository con PostgreSQL para persistencia de Users
- * Utiliza TypeORM para gestionar la conexión y operaciones SQL
+ * Repository para operaciones CRUD de Users
+ * Mapea automÃ¡ticamente entre DTO (PascalCase) y BD (snake_case)
  */
 export class UserRepository {
-  private repository?: Repository<UserEntity>;
-
-  private getRepository(): Repository<UserEntity> {
-    if (!this.repository) {
-      this.repository = AppDataSource.getRepository(UserEntity);
-    }
-    return this.repository;
-  }
-
+  
   /**
-   * Obtiene todos los usuarios
+   * Obtener todos los usuarios
    */
   async getAll(): Promise<User[]> {
-    const entities = await this.getRepository().find({ order: { user_id: 'ASC' } });
-    return entities.map(e => this.entityToDto(e));
+    const query = `
+      SELECT user_id, nick, nombre, apellidos, email, direccion, localidad, provincia, pais, created_at, updated_at
+      FROM users
+      ORDER BY user_id ASC
+    `;
+    
+    const rows = await queryAll<UserRow>(query);
+    return rows.map(row => dbToDto('users', row));
   }
 
   /**
-   * Obtiene un usuario por ID
+   * Obtener un usuario por ID
    */
   async getById(id: number): Promise<User | undefined> {
-    const entity = await this.getRepository().findOne({ where: { user_id: id } });
-    return entity ? this.entityToDto(entity) : undefined;
+    const query = `
+      SELECT user_id, nick, nombre, apellidos, email, direccion, localidad, provincia, pais, created_at, updated_at
+      FROM users
+      WHERE user_id = $1
+      LIMIT 1
+    `;
+
+    const row = await queryOne<UserRow>(query, [id]);
+    return row ? dbToDto('users', row) : undefined;
   }
 
   /**
-   * Obtiene un usuario por Nick (único)
+   * Obtener usuario por Nick (Ãºnico)
    */
   async getByNick(nick: string): Promise<User | undefined> {
-    const entity = await this.getRepository().findOne({ where: { nick } });
-    return entity ? this.entityToDto(entity) : undefined;
+    const query = `
+      SELECT user_id, nick, nombre, apellidos, email, direccion, localidad, provincia, pais, created_at, updated_at
+      FROM users
+      WHERE nick = $1
+      LIMIT 1
+    `;
+
+    const row = await queryOne<UserRow>(query, [nick]);
+    return row ? dbToDto('users', row) : undefined;
   }
 
   /**
-   * Crea un nuevo usuario
+   * Obtener usuario por Email (Ãºnico)
    */
-  async create(user: Omit<User, 'UserId'>): Promise<User> {
-    const entity = this.getRepository().create({
-      nick: user.Nick,
-      nombre: user.Nombre,
-      apellidos: user.Apellidos,
-      email: user.Email,
-      direccion: user.Direccion,
-      localidad: user.Localidad,
-      provincia: user.Provincia,
-      pais: user.Pais,
-    });
+  async getByEmail(email: string): Promise<User | undefined> {
+    const query = `
+      SELECT user_id, nick, nombre, apellidos, email, direccion, localidad, provincia, pais, created_at, updated_at
+      FROM users
+      WHERE email = $1
+      LIMIT 1
+    `;
 
-    const saved = await this.getRepository().save(entity);
-    return this.entityToDto(saved);
+    const row = await queryOne<UserRow>(query, [email]);
+    return row ? dbToDto('users', row) : undefined;
   }
 
   /**
-   * Actualiza un usuario existente
+   * Crear nuevo usuario
    */
-  async update(id: number, user: Partial<User>): Promise<User | undefined> {
-    const existing = await this.getRepository().findOne({ where: { user_id: id } });
+  async create(user: CreateUserInput): Promise<User> {
+    if (!user.Nick || !user.Nombre || !user.Apellidos || !user.Email) {
+      throw new Error('Missing required fields: Nick, Nombre, Apellidos, Email');
+    }
+
+    const query = `
+      INSERT INTO users (nick, nombre, apellidos, email, direccion, localidad, provincia, pais, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
+      RETURNING user_id, nick, nombre, apellidos, email, direccion, localidad, provincia, pais, created_at, updated_at
+    `;
+
+    const params = [
+      user.Nick,
+      user.Nombre,
+      user.Apellidos,
+      user.Email,
+      user.Direccion || null,
+      user.Localidad || null,
+      user.Provincia || null,
+      user.Pais || null,
+    ];
+
+    const row = await queryOne<UserRow>(query, params);
+    if (!row) throw new Error('Failed to create user');
+    
+    return dbToDto('users', row);
+  }
+
+  /**
+   * Actualizar usuario existente
+   */
+  async update(id: number, user: UpdateUserInput): Promise<User | undefined> {
+    const existing = await this.getById(id);
     if (!existing) return undefined;
 
-    const updates: Partial<UserEntity> = {};
-    if (user.Nick) updates.nick = user.Nick;
-    if (user.Nombre) updates.nombre = user.Nombre;
-    if (user.Apellidos) updates.apellidos = user.Apellidos;
-    if (user.Email) updates.email = user.Email;
-    if (user.Direccion !== undefined) updates.direccion = user.Direccion;
-    if (user.Localidad !== undefined) updates.localidad = user.Localidad;
-    if (user.Provincia !== undefined) updates.provincia = user.Provincia;
-    if (user.Pais !== undefined) updates.pais = user.Pais;
+    const updates: string[] = [];
+    const params: any[] = [];
+    let paramCount = 1;
 
-    await this.getRepository().update({ user_id: id }, updates);
-    const updated = await this.getRepository().findOne({ where: { user_id: id } });
-    return updated ? this.entityToDto(updated) : undefined;
+    if (user.Nick !== undefined) {
+      updates.push(`nick = $${paramCount++}`);
+      params.push(user.Nick);
+    }
+    if (user.Nombre !== undefined) {
+      updates.push(`nombre = $${paramCount++}`);
+      params.push(user.Nombre);
+    }
+    if (user.Apellidos !== undefined) {
+      updates.push(`apellidos = $${paramCount++}`);
+      params.push(user.Apellidos);
+    }
+    if (user.Email !== undefined) {
+      updates.push(`email = $${paramCount++}`);
+      params.push(user.Email);
+    }
+    if (user.Direccion !== undefined) {
+      updates.push(`direccion = $${paramCount++}`);
+      params.push(user.Direccion || null);
+    }
+    if (user.Localidad !== undefined) {
+      updates.push(`localidad = $${paramCount++}`);
+      params.push(user.Localidad || null);
+    }
+    if (user.Provincia !== undefined) {
+      updates.push(`provincia = $${paramCount++}`);
+      params.push(user.Provincia || null);
+    }
+    if (user.Pais !== undefined) {
+      updates.push(`pais = $${paramCount++}`);
+      params.push(user.Pais || null);
+    }
+
+    if (updates.length === 0) return existing;
+
+    updates.push(`updated_at = NOW()`);
+    params.push(id);
+
+    const query = `
+      UPDATE users
+      SET ${updates.join(', ')}
+      WHERE user_id = $${paramCount}
+      RETURNING user_id, nick, nombre, apellidos, email, direccion, localidad, provincia, pais, created_at, updated_at
+    `;
+
+    const row = await queryOne<UserRow>(query, params);
+    return row ? dbToDto('users', row) : undefined;
   }
 
   /**
-   * Elimina un usuario
+   * Eliminar usuario por ID
    */
   async delete(id: number): Promise<boolean> {
-    const result = await this.getRepository().delete({ user_id: id });
-    return (result.affected || 0) > 0;
+    const query = `DELETE FROM users WHERE user_id = $1`;
+    const result = await executeQuery(query, [id]);
+    return (result.rowCount || 0) > 0;
   }
 
   /**
-   * Convierte una entidad TypeORM a DTO
+   * Contar total de usuarios
    */
-  private entityToDto(entity: UserEntity): User {
+  async count(): Promise<number> {
+    const query = `SELECT COUNT(*) as total FROM users`;
+    const row = await queryOne<{ total: string }>(query);
+    return row ? parseInt(row.total) : 0;
+  }
+
+  /**
+   * BÃºsqueda con filtros y paginaciÃ³n
+   */
+  async search(filters?: {
+    nick?: string;
+    email?: string;
+    q?: string;
+    page?: number;
+    pageSize?: number;
+  }): Promise<{ items: User[]; total: number; page: number; pageSize: number }> {
+    const page = Math.max(1, filters?.page || 1);
+    const pageSize = Math.max(1, filters?.pageSize || 20);
+    const offset = (page - 1) * pageSize;
+
+    let whereConditions = [];
+    let params: any[] = [];
+    let paramCount = 1;
+
+    if (filters?.nick) {
+      whereConditions.push(`nick = $${paramCount++}`);
+      params.push(filters.nick);
+    }
+
+    if (filters?.email) {
+      whereConditions.push(`email = $${paramCount++}`);
+      params.push(filters.email);
+    }
+
+    if (filters?.q) {
+      whereConditions.push(`(nick ILIKE $${paramCount} OR nombre ILIKE $${paramCount} OR apellidos ILIKE $${paramCount})`);
+      params.push(`%${filters.q}%`);
+      paramCount++;
+    }
+
+    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
+
+    const countQuery = `SELECT COUNT(*) as total FROM users ${whereClause}`;
+    const countResult = await queryOne<{ total: string }>(countQuery, params);
+    const total = countResult ? parseInt(countResult.total) : 0;
+
+    params.push(pageSize, offset);
+    const dataQuery = `
+      SELECT user_id, nick, nombre, apellidos, email, direccion, localidad, provincia, pais, created_at, updated_at
+      FROM users
+      ${whereClause}
+      ORDER BY user_id ASC
+      LIMIT $${paramCount++} OFFSET $${paramCount}
+    `;
+
+    const items = await queryAll<UserRow>(dataQuery, params);
+
     return {
-      UserId: entity.user_id,
-      Nick: entity.nick,
-      Nombre: entity.nombre,
-      Apellidos: entity.apellidos,
-      Email: entity.email,
-      Direccion: entity.direccion,
-      Localidad: entity.localidad,
-      Provincia: entity.provincia,
-      Pais: entity.pais,
+      items: items.map(row => dbToDto('users', row)),
+      total,
+      page,
+      pageSize,
     };
   }
 }
+
+
 

@@ -1,5 +1,6 @@
 import { Express } from 'express'
 import request from 'supertest'
+import * as fixtures from './fixtures'
 
 /**
  * Test cases for all 18 entities
@@ -10,9 +11,11 @@ import request from 'supertest'
 export const raceTestCases = {
   async testCreateRace(app: Express) {
     const data = { 
-      Descripcion: 'Test Race',
+      CompetitionId: 1,
+      NumRace: 1,
       Fecha: '2024-03-16',
-      ChampionshipId: 1
+      Hora: '10:00:00',
+      Estado: 'completada'
     }
     const res = await request(app).post('/api/races').send(data)
     return { status: res.status, success: res.body.success, hasId: !!res.body.data?.RaceId }
@@ -26,9 +29,11 @@ export const raceTestCases = {
   async testGetRaceById(app: Express) {
     // Create first
     const createRes = await request(app).post('/api/races').send({ 
-      Descripcion: 'Test', 
-      Fecha: '2024-03-16',
-      ChampionshipId: 1
+      CompetitionId: 1,
+      NumRace: 2,
+      Fecha: '2024-03-17',
+      Hora: '14:00:00',
+      Estado: 'completada'
     })
     const id = createRes.body.data?.RaceId
     
@@ -42,9 +47,11 @@ export const raceTestCases = {
 
   async testUpdateRace(app: Express) {
     const createRes = await request(app).post('/api/races').send({ 
-      Descripcion: 'Test', 
-      Fecha: '2024-03-16',
-      ChampionshipId: 1
+      CompetitionId: 1,
+      NumRace: 3,
+      Fecha: '2024-03-18',
+      Hora: '09:00:00',
+      Estado: 'completada'
     })
     const id = createRes.body.data?.RaceId
     
@@ -80,8 +87,12 @@ export const raceTestCases = {
 // ============ CLUBS Test Cases ============
 export const clubTestCases = {
   async testCreateClub(app: Express) {
-    const data = { Nombre: 'Test Club' }
-    const res = await request(app).post('/api/clubs').send(data)
+    const res = await request(app).post('/api/clubs').send(fixtures.validClub)
+    console.log('📊 CREATE CLUB RESPONSE:')
+    console.log('Status:', res.status)
+    console.log('Body:', JSON.stringify(res.body, null, 2))
+    console.log('Request sent:', JSON.stringify(fixtures.validClub, null, 2))
+
     return { status: res.status, success: res.body.success, hasId: !!res.body.data?.ClubId }
   },
 
@@ -91,29 +102,51 @@ export const clubTestCases = {
   },
 
   async testGetClubById(app: Express) {
-    const createRes = await request(app).post('/api/clubs').send({ Nombre: 'Test' })
+    const createRes = await request(app).post('/api/clubs').send({ 
+      Alias: 'TestClub', 
+      TaxNombre: 'Test Club Inc',
+      TaxNumero: '123456789',
+      Descripcion: 'Test club',
+      FechaFundacion: '2024-01-01'
+    })
     const id = createRes.body.data?.ClubId
     
     if (id) {
       const getRes = await request(app).get(`/api/clubs/${id}`)
+      console.log('📊 GET CLUB BY ID RESPONSE:')
+      console.log('Status:', getRes.status)
+      console.log('Body:', JSON.stringify(getRes.body, null, 2))
+      console.log('id sent:', JSON.stringify(id, null, 2))      
       return { status: getRes.status, success: getRes.body.success }
     }
     return { status: 400, success: false }
   },
 
   async testUpdateClub(app: Express) {
-    const createRes = await request(app).post('/api/clubs').send({ Nombre: 'Test' })
+    const createRes = await request(app).post('/api/clubs').send({ 
+      Alias: 'UpdateTestClub', 
+      TaxNombre: 'Update Test Club',
+      TaxNumero: '987654321',
+      Descripcion: 'Test update',
+      FechaFundacion: '2024-02-01'
+    })
     const id = createRes.body.data?.ClubId
     
     if (id) {
-      const updateRes = await request(app).put(`/api/clubs/${id}`).send({ Nombre: 'Updated' })
+      const updateRes = await request(app).put(`/api/clubs/${id}`).send({ TaxNombre: 'Updated Club' })
       return { status: updateRes.status, success: updateRes.body.success }
     }
     return { status: 400, success: false }
   },
 
   async testDeleteClub(app: Express) {
-    const createRes = await request(app).post('/api/clubs').send({ Nombre: 'Test' })
+    const createRes = await request(app).post('/api/clubs').send({ 
+      Alias: 'DeleteTestClub', 
+      TaxNombre: 'Delete Test Club',
+      TaxNumero: '555555555',
+      Descripcion: 'Test delete',
+      FechaFundacion: '2024-03-01'
+    })
     const id = createRes.body.data?.ClubId
     
     if (id) {

@@ -2,6 +2,39 @@ import express, { Express, Router } from 'express'
 import { IBackend } from '../../src/backends/IBackend'
 
 /**
+ * Helper: Extraer parámetros de paginación y filtros
+ */
+function extractPaginationAndFilters(query: any) {
+  const page = query.page ? Math.max(1, parseInt(query.page as string, 10)) : 1;
+  const pageSize = query.pageSize ? Math.max(1, parseInt(query.pageSize as string, 10)) : 20;
+  
+  // Extraer filtros (todo lo que NO sea page o pageSize)
+  const filters: any = {};
+  Object.entries(query).forEach(([key, value]) => {
+    if (key !== 'page' && key !== 'pageSize' && value !== undefined) {
+      filters[key] = value;
+    }
+  });
+  
+  return { page, pageSize, filters };
+}
+
+/**
+ * Helper: Aplicar paginación en memoria
+ */
+function applyPagination(items: any[], page: number, pageSize: number) {
+  const start = (page - 1) * pageSize;
+  const paginatedItems = items.slice(start, start + pageSize);
+  
+  return {
+    items: paginatedItems,
+    total: items.length,
+    page,
+    pageSize
+  };
+}
+
+/**
  * Factory function to create the test Express application
  * with all routes injected and backend operations available
  */
@@ -31,14 +64,15 @@ export async function createTestApp(backend: IBackend): Promise<Express> {
 
   clubsRouter.get('/clubs', async (req, res) => {
     try {
-      const filters = req.query as any
-      const results = await backend.readAll('clubs', filters)
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('clubs', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
       res.status(200).json({ 
         success: true, 
-        total: results.length, 
-        items: results,
-        page: filters.page || 1,
-        pageSize: filters.pageSize || 20
+        total: paginated.total, 
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
       })
     } catch (error) {
       res.status(400).json({ success: false, error: (error as Error).message })
@@ -89,14 +123,15 @@ export async function createTestApp(backend: IBackend): Promise<Express> {
 
   usersRouter.get('/users', async (req, res) => {
     try {
-      const filters = req.query as any
-      const results = await backend.readAll('users', filters)
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('users', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
       res.status(200).json({ 
         success: true,
-        total: results.length,
-        items: results,
-        page: filters.page || 1,
-        pageSize: filters.pageSize || 20
+        total: paginated.total,
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
       })
     } catch (error) {
       res.status(400).json({ success: false, error: (error as Error).message })
@@ -147,14 +182,15 @@ export async function createTestApp(backend: IBackend): Promise<Express> {
 
   racesRouter.get('/races', async (req, res) => {
     try {
-      const filters = req.query as any
-      const results = await backend.readAll('races', filters)
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('races', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
       res.status(200).json({ 
         success: true,
-        total: results.length,
-        items: results,
-        page: filters.page || 1,
-        pageSize: filters.pageSize || 20
+        total: paginated.total,
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
       })
     } catch (error) {
       res.status(400).json({ success: false, error: (error as Error).message })
@@ -205,14 +241,15 @@ export async function createTestApp(backend: IBackend): Promise<Express> {
 
   competitionsRouter.get('/competitions', async (req, res) => {
     try {
-      const filters = req.query as any
-      const results = await backend.readAll('competitions', filters)
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('competitions', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
       res.status(200).json({ 
         success: true,
-        total: results.length,
-        items: results,
-        page: filters.page || 1,
-        pageSize: filters.pageSize || 20
+        total: paginated.total,
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
       })
     } catch (error) {
       res.status(400).json({ success: false, error: (error as Error).message })
@@ -263,14 +300,15 @@ export async function createTestApp(backend: IBackend): Promise<Express> {
 
   championshipsRouter.get('/championships', async (req, res) => {
     try {
-      const filters = req.query as any
-      const results = await backend.readAll('championships', filters)
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('championships', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
       res.status(200).json({ 
         success: true,
-        total: results.length,
-        items: results,
-        page: filters.page || 1,
-        pageSize: filters.pageSize || 20
+        total: paginated.total,
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
       })
     } catch (error) {
       res.status(400).json({ success: false, error: (error as Error).message })
@@ -321,14 +359,15 @@ export async function createTestApp(backend: IBackend): Promise<Express> {
 
   disciplinesRouter.get('/disciplines', async (req, res) => {
     try {
-      const filters = req.query as any
-      const results = await backend.readAll('disciplines', filters)
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('disciplines', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
       res.status(200).json({ 
         success: true,
-        total: results.length,
-        items: results,
-        page: filters.page || 1,
-        pageSize: filters.pageSize || 20
+        total: paginated.total,
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
       })
     } catch (error) {
       res.status(400).json({ success: false, error: (error as Error).message })
@@ -379,14 +418,15 @@ export async function createTestApp(backend: IBackend): Promise<Express> {
 
   eventsRouter.get('/events', async (req, res) => {
     try {
-      const filters = req.query as any
-      const results = await backend.readAll('events', filters)
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('events', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
       res.status(200).json({ 
         success: true,
-        total: results.length,
-        items: results,
-        page: filters.page || 1,
-        pageSize: filters.pageSize || 20
+        total: paginated.total,
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
       })
     } catch (error) {
       res.status(400).json({ success: false, error: (error as Error).message })
@@ -437,14 +477,15 @@ export async function createTestApp(backend: IBackend): Promise<Express> {
 
   registrationsRouter.get('/registrations', async (req, res) => {
     try {
-      const filters = req.query as any
-      const results = await backend.readAll('registrations', filters)
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('registrations', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
       res.status(200).json({ 
         success: true,
-        total: results.length,
-        items: results,
-        page: filters.page || 1,
-        pageSize: filters.pageSize || 20
+        total: paginated.total,
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
       })
     } catch (error) {
       res.status(400).json({ success: false, error: (error as Error).message })
@@ -495,14 +536,15 @@ export async function createTestApp(backend: IBackend): Promise<Express> {
 
   formatsRouter.get('/formats', async (req, res) => {
     try {
-      const filters = req.query as any
-      const results = await backend.readAll('formats', filters)
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('formats', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
       res.status(200).json({ 
         success: true,
-        total: results.length,
-        items: results,
-        page: filters.page || 1,
-        pageSize: filters.pageSize || 20
+        total: paginated.total,
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
       })
     } catch (error) {
       res.status(400).json({ success: false, error: (error as Error).message })
@@ -553,14 +595,15 @@ export async function createTestApp(backend: IBackend): Promise<Express> {
 
   surfacesRouter.get('/surfaces', async (req, res) => {
     try {
-      const filters = req.query as any
-      const results = await backend.readAll('surfaces', filters)
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('surfaces', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
       res.status(200).json({ 
         success: true,
-        total: results.length,
-        items: results,
-        page: filters.page || 1,
-        pageSize: filters.pageSize || 20
+        total: paginated.total,
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
       })
     } catch (error) {
       res.status(400).json({ success: false, error: (error as Error).message })
@@ -611,14 +654,15 @@ export async function createTestApp(backend: IBackend): Promise<Express> {
 
   divisionsRouter.get('/divisions', async (req, res) => {
     try {
-      const filters = req.query as any
-      const results = await backend.readAll('divisions', filters)
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('divisions', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
       res.status(200).json({ 
         success: true,
-        total: results.length,
-        items: results,
-        page: filters.page || 1,
-        pageSize: filters.pageSize || 20
+        total: paginated.total,
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
       })
     } catch (error) {
       res.status(400).json({ success: false, error: (error as Error).message })
@@ -669,14 +713,15 @@ export async function createTestApp(backend: IBackend): Promise<Express> {
 
   rolesRouter.get('/roles', async (req, res) => {
     try {
-      const filters = req.query as any
-      const results = await backend.readAll('roles', filters)
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('roles', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
       res.status(200).json({ 
         success: true,
-        total: results.length,
-        items: results,
-        page: filters.page || 1,
-        pageSize: filters.pageSize || 20
+        total: paginated.total,
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
       })
     } catch (error) {
       res.status(400).json({ success: false, error: (error as Error).message })
@@ -727,14 +772,15 @@ export async function createTestApp(backend: IBackend): Promise<Express> {
 
   raceresultsRouter.get('/raceresults', async (req, res) => {
     try {
-      const filters = req.query as any
-      const results = await backend.readAll('raceresults', filters)
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('raceresults', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
       res.status(200).json({ 
         success: true,
-        total: results.length,
-        items: results,
-        page: filters.page || 1,
-        pageSize: filters.pageSize || 20
+        total: paginated.total,
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
       })
     } catch (error) {
       res.status(400).json({ success: false, error: (error as Error).message })
@@ -785,14 +831,15 @@ export async function createTestApp(backend: IBackend): Promise<Express> {
 
   specialitiesRouter.get('/specialities', async (req, res) => {
     try {
-      const filters = req.query as any
-      const results = await backend.readAll('specialities', filters)
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('specialities', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
       res.status(200).json({ 
         success: true,
-        total: results.length,
-        items: results,
-        page: filters.page || 1,
-        pageSize: filters.pageSize || 20
+        total: paginated.total,
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
       })
     } catch (error) {
       res.status(400).json({ success: false, error: (error as Error).message })

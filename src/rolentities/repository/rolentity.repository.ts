@@ -1,4 +1,4 @@
-export type RolEntity = {
+﻿export type RolEntity = {
   RolEntityId?: number;
   EntityLinkId: number;
   RolId: number;
@@ -20,3 +20,4 @@ export class RolEntityRepository {
     return newRolEntity;
   }
 }
+

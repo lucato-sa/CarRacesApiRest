@@ -1,34 +1,20 @@
 /**
- * 🐘 POSTGRES BACKEND - Usa TypeORM y PostgreSQL
+ * 🐘 POSTGRES BACKEND - SQL Native con pg driver
  * Ideal para tests de integración realistas
  * Perfecto para: Tests de integración, staging, producción
  */
 
 import { IBackend } from './IBackend';
-import { DataSource } from 'typeorm';
+import { dbPool, queryOne, queryAll, executeQuery, initializeDB, closeDB } from '../database/data-source';
 
 export class PostgresBackend implements IBackend {
-  private dataSource: DataSource;
   private ready: boolean = false;
-
-  constructor(dataSource: DataSource) {
-    this.dataSource = dataSource;
-  }
 
   async initialize(): Promise<void> {
     console.log('🐘 Initializing PostgreSQL Backend...');
 
     try {
-      if (!this.dataSource.isInitialized) {
-        await this.dataSource.initialize();
-      }
-
-      // Opcionalmente sincronizar esquema en tests
-      if (process.env.DB_SYNCHRONIZE === 'true') {
-        console.log('  ⚠️  Synchronizing database schema...');
-        await this.dataSource.synchronize();
-      }
-
+      await initializeDB();
       this.ready = true;
       console.log('✅ PostgreSQL Backend initialized');
     } catch (error) {
@@ -44,7 +30,7 @@ export class PostgresBackend implements IBackend {
 
     try {
       // Truncate all tables (disable constraints temporarily)
-      const entities = [
+      const tables = [
         'users',
         'clubs',
         'races',
@@ -57,21 +43,27 @@ export class PostgresBackend implements IBackend {
         'surfaces',
         'divisions',
         'roles',
-        'rolEntities',
-        'userEntities',
-        'raceResults',
-        'entityLinks',
+        'role_entities',
+        'user_entities',
+        'race_results',
+        'entity_links',
         'specialities',
-        'drivingEnvironments',
+        'driving_environments',
       ];
 
-      for (const entity of entities) {
+      // Disable foreign key constraints
+      await executeQuery('SET session_replication_role = REPLICA', []);
+
+      for (const table of tables) {
         try {
-          await this.dataSource.query(`TRUNCATE TABLE "${entity}" CASCADE`);
+          await executeQuery(`TRUNCATE TABLE ${table} CASCADE`, []);
         } catch (e) {
           // Table might not exist, skip silently
         }
       }
+
+      // Re-enable foreign key constraints
+      await executeQuery('SET session_replication_role = DEFAULT', []);
 
       console.log('✅ PostgreSQL Backend cleared');
     } catch (error) {
@@ -84,9 +76,7 @@ export class PostgresBackend implements IBackend {
     console.log('🔌 Closing PostgreSQL Backend...');
 
     try {
-      if (this.dataSource.isInitialized) {
-        await this.dataSource.destroy();
-      }
+      await closeDB();
       this.ready = false;
       console.log('✅ PostgreSQL Backend closed');
     } catch (error) {
@@ -99,14 +89,18 @@ export class PostgresBackend implements IBackend {
     if (!this.ready) throw new Error('Backend not initialized');
 
     try {
-      const result = await this.dataSource.query(
-        `INSERT INTO "${entity}" (${Object.keys(data).join(', ')}) 
-         VALUES (${Object.keys(data).map((_, i) => `$${i + 1}`).join(', ')}) 
+      const columns = Object.keys(data);
+      const values = Object.values(data);
+      const placeholders = columns.map((_, i) => `$${i + 1}`).join(', ');
+
+      const result = await executeQuery(
+        `INSERT INTO ${entity} (${columns.join(', ')}) 
+         VALUES (${placeholders}) 
          RETURNING *`,
-        Object.values(data)
+        values
       );
 
-      return result[0];
+      return result.rows[0];
     } catch (error) {
       console.error(`Error creating ${entity}:`, error);
       throw error;
@@ -118,12 +112,12 @@ export class PostgresBackend implements IBackend {
 
     try {
       const idField = this.getIdField(entity);
-      const result = await this.dataSource.query(
-        `SELECT * FROM "${entity}" WHERE "${idField}" = $1`,
+      const result = await queryOne(
+        `SELECT * FROM ${entity} WHERE ${idField} = $1`,
         [id]
       );
 
-      return result[0];
+      return result;
     } catch (error) {
       console.error(`Error reading ${entity}:`, error);
       throw error;
@@ -134,18 +128,18 @@ export class PostgresBackend implements IBackend {
     if (!this.ready) throw new Error('Backend not initialized');
 
     try {
-      let query = `SELECT * FROM "${entity}"`;
+      let query = `SELECT * FROM ${entity}`;
       const params: any[] = [];
 
       if (filters && Object.keys(filters).length > 0) {
         const conditions = Object.entries(filters).map(([key, value], i) => {
           params.push(value);
-          return `"${key}" = $${i + 1}`;
+          return `${key} = $${i + 1}`;
         });
         query += ` WHERE ${conditions.join(' AND ')}`;
       }
 
-      return await this.dataSource.query(query, params);
+      return await queryAll(query, params);
     } catch (error) {
       console.error(`Error reading all ${entity}:`, error);
       throw error;
@@ -158,17 +152,17 @@ export class PostgresBackend implements IBackend {
     try {
       const idField = this.getIdField(entity);
       const setClause = Object.keys(data)
-        .map((key, i) => `"${key}" = $${i + 1}`)
+        .map((key, i) => `${key} = $${i + 1}`)
         .join(', ');
 
       const params = [...Object.values(data), id];
 
-      const result = await this.dataSource.query(
-        `UPDATE "${entity}" SET ${setClause} WHERE "${idField}" = $${Object.keys(data).length + 1} RETURNING *`,
+      const result = await queryOne(
+        `UPDATE ${entity} SET ${setClause} WHERE ${idField} = $${Object.keys(data).length + 1} RETURNING *`,
         params
       );
 
-      return result[0];
+      return result;
     } catch (error) {
       console.error(`Error updating ${entity}:`, error);
       throw error;
@@ -180,7 +174,7 @@ export class PostgresBackend implements IBackend {
 
     try {
       const idField = this.getIdField(entity);
-      await this.dataSource.query(`DELETE FROM "${entity}" WHERE "${idField}" = $1`, [id]);
+      await executeQuery(`DELETE FROM ${entity} WHERE ${idField} = $1`, [id]);
     } catch (error) {
       console.error(`Error deleting ${entity}:`, error);
       throw error;
@@ -191,8 +185,8 @@ export class PostgresBackend implements IBackend {
     if (!this.ready) throw new Error('Backend not initialized');
 
     try {
-      const result = await this.dataSource.query(`SELECT COUNT(*) as count FROM "${entity}"`);
-      return parseInt(result[0].count, 10);
+      const result = await queryOne(`SELECT COUNT(*) as count FROM ${entity}`, []);
+      return parseInt(result?.count || 0, 10);
     } catch (error) {
       console.error(`Error counting ${entity}:`, error);
       throw error;
@@ -200,49 +194,30 @@ export class PostgresBackend implements IBackend {
   }
 
   isReady(): boolean {
-    return this.ready && this.dataSource.isInitialized;
+    return this.ready;
   }
 
   /**
-   * Helper: Obtener campo ID para cada entidad
+   * Helper: Get ID field for each entity
    */
   private getIdField(entity: string): string {
-    const idFields: { [key: string]: string } = {
-      users: 'UserId',
-      clubs: 'ClubId',
-      races: 'RaceId',
-      competitions: 'CompetitionId',
-      championships: 'ChampionshipId',
-      events: 'EventId',
-      registrations: 'RegistrationId',
-      disciplines: 'DisciplineId',
-      formats: 'FormatId',
-      surfaces: 'SurfaceId',
-      divisions: 'DivisionId',
-      roles: 'RoleId',
-      rolEntities: 'RolEntityId',
-      userEntities: 'UserEntityId',
-      raceResults: 'RaceResultId',
-      entityLinks: 'EntityLinkId',
-      specialities: 'SpecialityId',
-      drivingEnvironments: 'DrivingEnviromentId',
-    };
-
-    return idFields[entity] || 'id';
+    // Convert entity name to id field: "users" -> "user_id", "clubs" -> "club_id"
+    const singular = entity.endsWith('s') ? entity.slice(0, -1) : entity;
+    return `${singular}_id`;
   }
 
   /**
-   * Debug: Ver conexión
+   * Debug: Check connection status
    */
   isConnected(): boolean {
-    return this.dataSource.isInitialized;
+    return this.ready && dbPool.totalCount > 0;
   }
 
   /**
-   * Ejecutar query raw (para operaciones especiales)
+   * Execute raw query (for special operations)
    */
   async query(query: string, params?: any[]): Promise<any> {
     if (!this.ready) throw new Error('Backend not initialized');
-    return this.dataSource.query(query, params);
+    return executeQuery(query, params || []);
   }
 }

@@ -1,115 +1,222 @@
-import { Repository } from 'typeorm';
-import { AppDataSource } from '../../database/data-source';
-import { ClubEntity } from '../entities/club.entity';
-
-/**
- * Club DTO - Formato de transferencia de datos (sin metadatos internos)
+﻿/**
+ * ðŸ—„ï¸ Club Repository - SQL Nativo con 'pg'
+ * 
+ * Acceso a datos usando SQL explÃ­cito
+ * âœ… Control total de queries
+ * âœ… FÃ¡cil debugging
+ * âœ… Mejor performance
  */
-export type Club = {
-  ClubId?: number;
-  Alias: string;
-  TaxNombre: string;
-  TaxNumero: string;
-  Descripcion: string;
-  FechaFundacion: string;
-  default?: boolean;
-};
+
+import { queryAll, queryOne, executeQuery } from '../../database/data-source';
+import { Club, CreateClubInput, UpdateClubInput, ClubRow } from '../models/club.model';
+import { dbToDto } from '../../config/database.config';
 
 /**
- * Repository con PostgreSQL para persistencia de Clubs
- * Utiliza TypeORM para gestionar la conexión y operaciones SQL
+ * Repository para operaciones CRUD de Clubs
+ * Mapea automÃ¡ticamente entre DTO (PascalCase) y BD (snake_case)
  */
 export class ClubRepository {
-  private repository?: Repository<ClubEntity>;
-
-  private getRepository(): Repository<ClubEntity> {
-    if (!this.repository) {
-      this.repository = AppDataSource.getRepository(ClubEntity);
-    }
-    return this.repository;
-  }
-
+  
   /**
-   * Obtiene todos los clubs
+   * Obtener todos los clubs
    */
   async getAll(): Promise<Club[]> {
-    const entities = await this.getRepository().find({ order: { club_id: 'ASC' } });
-    return entities.map(e => this.entityToDto(e));
+    const query = `
+      SELECT club_id, alias, tax_nombre, tax_numero, descripcion, fecha_fundacion, "default", created_at, updated_at
+      FROM clubs
+      ORDER BY club_id ASC
+    `;
+    
+    const rows = await queryAll<ClubRow>(query);
+    return rows.map(row => dbToDto('clubs', row));
   }
 
   /**
-   * Obtiene un club por ID
+   * Obtener un club por ID
    */
   async getById(id: number): Promise<Club | undefined> {
-    const entity = await this.getRepository().findOne({ where: { club_id: id } });
-    return entity ? this.entityToDto(entity) : undefined;
+    const query = `
+      SELECT club_id, alias, tax_nombre, tax_numero, descripcion, fecha_fundacion, "default", created_at, updated_at
+      FROM clubs
+      WHERE club_id = $1
+      LIMIT 1
+    `;
+
+    const row = await queryOne<ClubRow>(query, [id]);
+    return row ? dbToDto('clubs', row) : undefined;
   }
 
   /**
-   * Obtiene un club por Alias (único)
+   * Obtener un club por Alias (Ãºnico)
    */
   async getByAlias(alias: string): Promise<Club | undefined> {
-    const entity = await this.getRepository().findOne({ where: { alias } });
-    return entity ? this.entityToDto(entity) : undefined;
+    const query = `
+      SELECT club_id, alias, tax_nombre, tax_numero, descripcion, fecha_fundacion, "default", created_at, updated_at
+      FROM clubs
+      WHERE alias = $1
+      LIMIT 1
+    `;
+
+    const row = await queryOne<ClubRow>(query, [alias]);
+    return row ? dbToDto('clubs', row) : undefined;
   }
 
   /**
-   * Crea un nuevo club
+   * Crear nuevo club
    */
-  async create(club: Omit<Club, 'ClubId'>): Promise<Club> {
-    const entity = this.getRepository().create({
-      alias: club.Alias,
-      tax_nombre: club.TaxNombre,
-      tax_numero: club.TaxNumero,
-      descripcion: club.Descripcion,
-      fecha_fundacion: club.FechaFundacion,
-      default: club.default || false,
-    });
+  async create(club: CreateClubInput): Promise<Club> {
+    // Validar campos requeridos
+    if (!club.Alias || !club.TaxNombre || !club.TaxNumero || !club.Descripcion || !club.FechaFundacion) {
+      throw new Error('Missing required fields: Alias, TaxNombre, TaxNumero, Descripcion, FechaFundacion');
+    }
 
-    const saved = await this.getRepository().save(entity);
-    return this.entityToDto(saved);
+    const query = `
+      INSERT INTO clubs (alias, tax_nombre, tax_numero, descripcion, fecha_fundacion, "default", created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+      RETURNING club_id, alias, tax_nombre, tax_numero, descripcion, fecha_fundacion, "default", created_at, updated_at
+    `;
+
+    const params = [
+      club.Alias,
+      club.TaxNombre,
+      club.TaxNumero,
+      club.Descripcion,
+      club.FechaFundacion,
+      club.Default || false,
+    ];
+
+    const row = await queryOne<ClubRow>(query, params);
+    if (!row) throw new Error('Failed to create club');
+    
+    return dbToDto('clubs', row);
   }
 
   /**
-   * Actualiza un club existente
+   * Actualizar club existente
    */
-  async update(id: number, club: Partial<Club>): Promise<Club | undefined> {
-    const existing = await this.getRepository().findOne({ where: { club_id: id } });
+  async update(id: number, club: UpdateClubInput): Promise<Club | undefined> {
+    // Verificar que existe
+    const existing = await this.getById(id);
     if (!existing) return undefined;
 
-    const updates: Partial<ClubEntity> = {};
-    if (club.Alias) updates.alias = club.Alias;
-    if (club.TaxNombre) updates.tax_nombre = club.TaxNombre;
-    if (club.TaxNumero) updates.tax_numero = club.TaxNumero;
-    if (club.Descripcion) updates.descripcion = club.Descripcion;
-    if (club.FechaFundacion) updates.fecha_fundacion = club.FechaFundacion;
-    if (club.default !== undefined) updates.default = club.default;
+    // Construir queries UPDATE dinÃ¡micamente
+    const updates: string[] = [];
+    const params: any[] = [];
+    let paramCount = 1;
 
-    await this.getRepository().update({ club_id: id }, updates);
-    const updated = await this.getRepository().findOne({ where: { club_id: id } });
-    return updated ? this.entityToDto(updated) : undefined;
+    if (club.Alias !== undefined) {
+      updates.push(`alias = $${paramCount++}`);
+      params.push(club.Alias);
+    }
+    if (club.TaxNombre !== undefined) {
+      updates.push(`tax_nombre = $${paramCount++}`);
+      params.push(club.TaxNombre);
+    }
+    if (club.TaxNumero !== undefined) {
+      updates.push(`tax_numero = $${paramCount++}`);
+      params.push(club.TaxNumero);
+    }
+    if (club.Descripcion !== undefined) {
+      updates.push(`descripcion = $${paramCount++}`);
+      params.push(club.Descripcion);
+    }
+    if (club.FechaFundacion !== undefined) {
+      updates.push(`fecha_fundacion = $${paramCount++}`);
+      params.push(club.FechaFundacion);
+    }
+    if (club.Default !== undefined) {
+      updates.push(`default = $${paramCount++}`);
+      params.push(club.Default);
+    }
+
+    if (updates.length === 0) return existing; // Sin cambios
+
+    // Agregar timestamp updated_at
+    updates.push(`updated_at = NOW()`);
+    params.push(id);
+
+    const query = `
+      UPDATE clubs
+      SET ${updates.join(', ')}
+      WHERE club_id = $${paramCount}
+      RETURNING club_id, alias, tax_nombre, tax_numero, descripcion, fecha_fundacion, "default", created_at, updated_at
+    `;
+
+    const row = await queryOne<ClubRow>(query, params);
+    return row ? dbToDto('clubs', row) : undefined;
   }
 
   /**
-   * Elimina un club
+   * Eliminar club por ID
    */
   async delete(id: number): Promise<boolean> {
-    const result = await this.getRepository().delete({ club_id: id });
-    return (result.affected || 0) > 0;
+    const query = `DELETE FROM clubs WHERE club_id = $1`;
+    const result = await executeQuery(query, [id]);
+    return (result.rowCount || 0) > 0;
   }
 
   /**
-   * Convierte una entidad TypeORM a DTO
+   * Contar total de clubs
    */
-  private entityToDto(entity: ClubEntity): Club {
+  async count(): Promise<number> {
+    const query = `SELECT COUNT(*) as total FROM clubs`;
+    const row = await queryOne<{ total: string }>(query);
+    return row ? parseInt(row.total) : 0;
+  }
+
+  /**
+   * BÃºsqueda con filtros y paginaciÃ³n
+   */
+  async search(filters?: {
+    alias?: string;
+    q?: string;
+    page?: number;
+    pageSize?: number;
+  }): Promise<{ items: Club[]; total: number; page: number; pageSize: number }> {
+    const page = Math.max(1, filters?.page || 1);
+    const pageSize = Math.max(1, filters?.pageSize || 20);
+    const offset = (page - 1) * pageSize;
+
+    let whereConditions = [];
+    let params: any[] = [];
+    let paramCount = 1;
+
+    if (filters?.alias) {
+      whereConditions.push(`alias = $${paramCount++}`);
+      params.push(filters.alias);
+    }
+
+    if (filters?.q) {
+      whereConditions.push(`(alias ILIKE $${paramCount} OR tax_nombre ILIKE $${paramCount})`);
+      params.push(`%${filters.q}%`);
+      paramCount++;
+    }
+
+    const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
+
+    // Total count
+    const countQuery = `SELECT COUNT(*) as total FROM clubs ${whereClause}`;
+    const countResult = await queryOne<{ total: string }>(countQuery, params);
+    const total = countResult ? parseInt(countResult.total) : 0;
+
+    // Data con paginaciÃ³n
+    params.push(pageSize, offset);
+    const dataQuery = `
+      SELECT club_id, alias, tax_nombre, tax_numero, descripcion, fecha_fundacion, "default", created_at, updated_at
+      FROM clubs
+      ${whereClause}
+      ORDER BY club_id ASC
+      LIMIT $${paramCount++} OFFSET $${paramCount}
+    `;
+
+    const items = await queryAll<ClubRow>(dataQuery, params);
+
     return {
-      ClubId: entity.club_id,
-      Alias: entity.alias,
-      TaxNombre: entity.tax_nombre,
-      TaxNumero: entity.tax_numero,
-      Descripcion: entity.descripcion,
-      FechaFundacion: entity.fecha_fundacion,
-      default: entity.default,
+      items: items.map(row => dbToDto('clubs', row)),
+      total,
+      page,
+      pageSize,
     };
   }
 }
+
