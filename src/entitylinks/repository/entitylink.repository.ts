@@ -10,7 +10,7 @@ export class EntityLinkRepository {
   
   async getAll(): Promise<EntityLink[]> {
     const query = `
-      SELECT entity_link_id, entity_name, entity_id, created_at, updated_at
+      SELECT entity_link_id, entity_name, created_at, updated_at
       FROM entity_links
       ORDER BY entity_link_id ASC
     `;
@@ -21,7 +21,7 @@ export class EntityLinkRepository {
 
   async getById(id: number): Promise<EntityLink | undefined> {
     const query = `
-      SELECT entity_link_id, entity_name, entity_id, created_at, updated_at
+      SELECT entity_link_id, entity_name, created_at, updated_at
       FROM entity_links
       WHERE entity_link_id = $1
       LIMIT 1
@@ -31,21 +31,9 @@ export class EntityLinkRepository {
     return row ? dbToDto('entitylinks', row) : undefined;
   }
 
-  async getByEntity(entityName: string, entityId: number): Promise<EntityLink | undefined> {
-    const query = `
-      SELECT entity_link_id, entity_name, entity_id, created_at, updated_at
-      FROM entity_links
-      WHERE entity_name = $1 AND entity_id = $2
-      LIMIT 1
-    `;
-
-    const row = await queryOne<EntityLinkRow>(query, [entityName, entityId]);
-    return row ? dbToDto('entitylinks', row) : undefined;
-  }
-
   async getByEntityName(entityName: string): Promise<EntityLink[]> {
     const query = `
-      SELECT entity_link_id, entity_name, entity_id, created_at, updated_at
+      SELECT entity_link_id, entity_name, created_at, updated_at
       FROM entity_links
       WHERE entity_name = $1
       ORDER BY entity_link_id ASC
@@ -56,19 +44,18 @@ export class EntityLinkRepository {
   }
 
   async create(entityLink: CreateEntityLinkInput): Promise<EntityLink> {
-    if (!entityLink.EntityName || !entityLink.EntityId) {
-      throw new Error('Missing required fields: EntityName, EntityId');
+    if (!entityLink.EntityName) {
+      throw new Error('Missing required fields: EntityName');
     }
 
     const query = `
-      INSERT INTO entity_links (entity_name, entity_id, created_at, updated_at)
-      VALUES ($1, $2, NOW(), NOW())
-      RETURNING entity_link_id, entity_name, entity_id, created_at, updated_at
+      INSERT INTO entity_links (entity_name, created_at, updated_at)
+      VALUES ($1, NOW(), NOW())
+      RETURNING entity_link_id, entity_name, created_at, updated_at
     `;
 
     const params = [
       entityLink.EntityName,
-      entityLink.EntityId,
     ];
 
     const row = await queryOne<EntityLinkRow>(query, params);
@@ -89,10 +76,6 @@ export class EntityLinkRepository {
       updates.push(`entity_name = $${paramCount++}`);
       params.push(entityLink.EntityName);
     }
-    if (entityLink.EntityId !== undefined) {
-      updates.push(`entity_id = $${paramCount++}`);
-      params.push(entityLink.EntityId);
-    }
 
     if (updates.length === 0) return existing;
 
@@ -103,7 +86,7 @@ export class EntityLinkRepository {
       UPDATE entity_links
       SET ${updates.join(', ')}
       WHERE entity_link_id = $${paramCount}
-      RETURNING entity_link_id, entity_name, entity_id, created_at, updated_at
+      RETURNING entity_link_id, entity_name, created_at, updated_at
     `;
 
     const row = await queryOne<EntityLinkRow>(query, params);

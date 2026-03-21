@@ -206,6 +206,7 @@ export const DATABASE_CONFIG = {
       'UserId': 'user_id',
       'EntityLinkId': 'entity_link_id',
       'RolId': 'rol_id',
+      'EntityLinkIdDat': 'entity_link_id_dat',
       'CreatedAt': 'created_at',
       'UpdatedAt': 'updated_at',
     },
@@ -227,7 +228,6 @@ export const DATABASE_CONFIG = {
     entitylinks: {
       'EntityLinkId': 'entity_link_id',
       'EntityName': 'entity_name',
-      'EntityId': 'entity_id',
       'CreatedAt': 'created_at',
       'UpdatedAt': 'updated_at',
     },

@@ -10,7 +10,7 @@ export class UserEntityRepository {
   
   async getAll(): Promise<UserEntity[]> {
     const query = `
-      SELECT user_entity_id, user_id, entity_link_id, rol_id, created_at, updated_at
+      SELECT user_entity_id, user_id, entity_link_id, rol_id, entity_link_id_dat, created_at, updated_at
       FROM user_entities
       ORDER BY user_entity_id ASC
     `;
@@ -21,7 +21,7 @@ export class UserEntityRepository {
 
   async getById(id: number): Promise<UserEntity | undefined> {
     const query = `
-      SELECT user_entity_id, user_id, entity_link_id, rol_id, created_at, updated_at
+      SELECT user_entity_id, user_id, entity_link_id, rol_id, entity_link_id_dat, created_at, updated_at
       FROM user_entities
       WHERE user_entity_id = $1
       LIMIT 1
@@ -33,7 +33,7 @@ export class UserEntityRepository {
 
   async getByUser(userId: number): Promise<UserEntity[]> {
     const query = `
-      SELECT user_entity_id, user_id, entity_link_id, rol_id, created_at, updated_at
+      SELECT user_entity_id, user_id, entity_link_id, rol_id, entity_link_id_dat, created_at, updated_at
       FROM user_entities
       WHERE user_id = $1
       ORDER BY user_entity_id ASC
@@ -45,7 +45,7 @@ export class UserEntityRepository {
 
   async getByEntityLink(entityLinkId: number): Promise<UserEntity[]> {
     const query = `
-      SELECT user_entity_id, user_id, entity_link_id, rol_id, created_at, updated_at
+      SELECT user_entity_id, user_id, entity_link_id, rol_id, entity_link_id_dat, created_at, updated_at
       FROM user_entities
       WHERE entity_link_id = $1
       ORDER BY user_entity_id ASC
@@ -57,7 +57,7 @@ export class UserEntityRepository {
 
   async getByRole(rolId: number): Promise<UserEntity[]> {
     const query = `
-      SELECT user_entity_id, user_id, entity_link_id, rol_id, created_at, updated_at
+      SELECT user_entity_id, user_id, entity_link_id, rol_id, entity_link_id_dat, created_at, updated_at
       FROM user_entities
       WHERE rol_id = $1
       ORDER BY user_entity_id ASC
@@ -73,15 +73,16 @@ export class UserEntityRepository {
     }
 
     const query = `
-      INSERT INTO user_entities (user_id, entity_link_id, rol_id, created_at, updated_at)
-      VALUES ($1, $2, $3, NOW(), NOW())
-      RETURNING user_entity_id, user_id, entity_link_id, rol_id, created_at, updated_at
+      INSERT INTO user_entities (user_id, entity_link_id, rol_id, entity_link_id_dat, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, NOW(), NOW())
+      RETURNING user_entity_id, user_id, entity_link_id, rol_id, entity_link_id_dat, created_at, updated_at
     `;
 
     const params = [
       userEntity.UserId,
       userEntity.EntityLinkId,
       userEntity.RolId,
+      userEntity.EntityLinkIdDat || null,
     ];
 
     const row = await queryOne<UserEntityRow>(query, params);
@@ -112,7 +113,7 @@ export class UserEntityRepository {
       UPDATE user_entities
       SET ${updates.join(', ')}
       WHERE user_entity_id = $${paramCount}
-      RETURNING user_entity_id, user_id, entity_link_id, rol_id, created_at, updated_at
+      RETURNING user_entity_id, user_id, entity_link_id, rol_id, entity_link_id_dat, created_at, updated_at
     `;
 
     const row = await queryOne<UserEntityRow>(query, params);

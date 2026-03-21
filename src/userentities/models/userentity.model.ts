@@ -7,6 +7,7 @@ export interface UserEntity {
   UserId: number;
   EntityLinkId: number;
   RolId: number;
+  EntityLinkIdDat?: number;
   CreatedAt?: Date;
   UpdatedAt?: Date;
 }
@@ -19,6 +20,7 @@ export interface UserEntityRow {
   user_id: number;
   entity_link_id: number;
   rol_id: number;
+  entity_link_id_dat?: number;
   created_at?: Date;
   updated_at?: Date;
 }

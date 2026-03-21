@@ -235,7 +235,6 @@ CREATE TABLE IF NOT EXISTS roles (
 CREATE TABLE IF NOT EXISTS entity_links (
   entity_link_id SERIAL PRIMARY KEY,
   entity_name VARCHAR(100),
-  entity_id INT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -259,8 +258,10 @@ CREATE TABLE IF NOT EXISTS user_entities (
   user_id INT REFERENCES users(user_id),
   entity_link_id INT REFERENCES entity_links(entity_link_id),
   rol_id INT REFERENCES roles(rol_id),
+  entity_link_id_dat INT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_id, rol_id, entity_link_id, entity_link_id_dat)
 );
 
 -- ============================================

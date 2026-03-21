@@ -311,12 +311,14 @@ export const validUserEntity = {
   UserId: 1,
   EntityLinkId: 1,
   RolId: 1,
+  EntityLinkIdDat: 1,
 }
 
 export const secondUserEntity = {
   UserId: 2,
   EntityLinkId: 2,
   RolId: 2,
+  EntityLinkIdDat: 2,
 }
 
 /**
@@ -350,13 +352,11 @@ export const secondRaceResult = {
  */
 
 export const validEntityLink = {
-  EntityName: 'RACE',
-  EntityId: 1,
+  EntityName: 'Club',
 }
 
 export const secondEntityLink = {
-  EntityName: 'CHAMPIONSHIP',
-  EntityId: 1,
+  EntityName: 'Event',
 }
 
 /**

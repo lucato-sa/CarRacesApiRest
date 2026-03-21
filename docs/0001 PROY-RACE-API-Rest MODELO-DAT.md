@@ -361,14 +361,14 @@ KeyUnique: Nick
 
 	Allows you to associate a user with an entity and a specific role.
 
-| Columna       | Tipo                  |
-| ------------- | --------------------- |
-| UserEntityId  | PrimaryKey            |
-| UserId        | ForeignKey            |
-| EntityLinkId  | ForeignKey            |
-| RolId         | ForeignKey            |
-| EntityId      | number                |
-| FechaRegistro | date                  |
-| Activo        | boolean               |
+| Columna               | Tipo                  |
+| --------------------- | --------------------- |
+| UserEntityId          | PrimaryKey            |
+| UserId                | ForeignKey            |
+| EntityLinkId          | ForeignKey            |
+| RolId                 | ForeignKey            |
+| EntityLinkIdDat       | number                |
+| CreatedAt             | timestamp             |
+| UpdatedAt             | timestamp             |
 
-	UniqueKey: UserId, RolId, EntityLinkId, EntityId  
+	UniqueKey: UserId, RolId, EntityLinkId, EntityLinkIdDat  

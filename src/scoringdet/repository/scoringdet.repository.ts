@@ -16,7 +16,7 @@ export class ScoringDetRepository {
     `;
     
     const rows = await queryAll<ScoringDetRow>(query);
-    return rows.map(row => dbToDto('scoring_det', row));
+    return rows.map(row => dbToDto('scoringdet', row));
   }
 
   async getById(id: number): Promise<ScoringDet | undefined> {
@@ -28,7 +28,7 @@ export class ScoringDetRepository {
     `;
 
     const row = await queryOne<ScoringDetRow>(query, [id]);
-    return row ? dbToDto('scoring_det', row) : undefined;
+    return row ? dbToDto('scoringdet', row) : undefined;
   }
 
   async getByScoringId(scoringId: number): Promise<ScoringDet[]> {
@@ -40,7 +40,7 @@ export class ScoringDetRepository {
     `;
 
     const rows = await queryAll<ScoringDetRow>(query, [scoringId]);
-    return rows.map(row => dbToDto('scoring_det', row));
+    return rows.map(row => dbToDto('scoringdet', row));
   }
 
   async create(scoringDet: CreateScoringDetInput): Promise<ScoringDet> {
@@ -57,7 +57,7 @@ export class ScoringDetRepository {
     const params = [scoringDet.ScoringId, scoringDet.Posicion, scoringDet.Puntos];
 
     const row = await queryOne<ScoringDetRow>(query, params);
-    return row ? dbToDto('scoring_det', row) : ({} as ScoringDet);
+    return row ? dbToDto('scoringdet', row) : ({} as ScoringDet);
   }
 
   async update(id: number, scoringDet: UpdateScoringDetInput): Promise<ScoringDet | undefined> {
@@ -90,7 +90,7 @@ export class ScoringDetRepository {
     `;
 
     const row = await queryOne<ScoringDetRow>(query, params);
-    return row ? dbToDto('scoring_det', row) : undefined;
+    return row ? dbToDto('scoringdet', row) : undefined;
   }
 
   async delete(id: number): Promise<boolean> {
