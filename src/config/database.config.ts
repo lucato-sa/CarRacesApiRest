@@ -251,6 +251,132 @@ export const DATABASE_CONFIG = {
       'CreatedAt': 'created_at',
       'UpdatedAt': 'updated_at',
     },
+
+    // 19. LEVELS
+    levels: {
+      'LevelId': 'level_id',
+      'Descripcion': 'descripcion',
+      'CreatedAt': 'created_at',
+      'UpdatedAt': 'updated_at',
+    },
+
+    // 20. GROUPS
+    groups: {
+      'GroupId': 'group_id',
+      'DivisionId': 'division_id',
+      'Descripcion': 'descripcion',
+      'ClubId': 'club_id',
+      'Default': 'default',
+      'CreatedAt': 'created_at',
+      'UpdatedAt': 'updated_at',
+    },
+
+    // 21. SCORING
+    scoring: {
+      'ScoringId': 'scoring_id',
+      'Descripcion': 'descripcion',
+      'ClubId': 'club_id',
+      'UltPosPuntos': 'ult_pos_puntos',
+      'PuntosDefecto': 'puntos_defecto',
+      'CreatedAt': 'created_at',
+      'UpdatedAt': 'updated_at',
+    },
+
+    // 22. SCORING_DET (Detalle de Scoring)
+    scoringdet: {
+      'ScoringDetId': 'scoring_det_id',
+      'ScoringId': 'scoring_id',
+      'Posicion': 'posicion',
+      'Puntos': 'puntos',
+      'CreatedAt': 'created_at',
+      'UpdatedAt': 'updated_at',
+    },
+
+    // 23. RULEBOOKS
+    rulebooks: {
+      'RulebookId': 'rulebook_id',
+      'Descripcion': 'descripcion',
+      'FechaInicioValido': 'fecha_inicio_valido',
+      'FechaFinValido': 'fecha_fin_valido',
+      'DivisionId': 'division_id',
+      'GroupId': 'group_id',
+      'ClubId': 'club_id',
+      'CreatedAt': 'created_at',
+      'UpdatedAt': 'updated_at',
+    },
+
+    // 24. RULES
+    rules: {
+      'RuleId': 'rule_id',
+      'RulebookId': 'rulebook_id',
+      'RuleCode': 'rule_code',
+      'Descripcion': 'descripcion',
+      'CreatedAt': 'created_at',
+      'UpdatedAt': 'updated_at',
+    },
+
+    // 25. SEASONS
+    seasons: {
+      'SeasonId': 'season_id',
+      'ChampionshipId': 'championship_id',
+      'Descripcion': 'descripcion',
+      'FechaDesde': 'fecha_desde',
+      'FechaHasta': 'fecha_hasta',
+      'PilotosMin': 'pilotos_min',
+      'PilotosMax': 'pilotos_max',
+      'SoloSocios': 'solo_socios',
+      'RulebookId': 'rulebook_id',
+      'CreatedAt': 'created_at',
+      'UpdatedAt': 'updated_at',
+    },
+
+    // 26. VENUES
+    venues: {
+      'VenueId': 'venue_id',
+      'ClubId': 'club_id',
+      'Alias': 'alias',
+      'SedeSocial': 'sede_social',
+      'SedeCarreras': 'sede_carreras',
+      'Direccion': 'direccion',
+      'Localidad': 'localidad',
+      'Provincia': 'provincia',
+      'Pais': 'pais',
+      'MapLatitud': 'map_latitud',
+      'MapLongitud': 'map_longitud',
+      'CreatedAt': 'created_at',
+      'UpdatedAt': 'updated_at',
+    },
+
+    // 27. CIRCUITS
+    circuits: {
+      'CircuitId': 'circuit_id',
+      'VenueId': 'venue_id',
+      'SurfaceId': 'surface_id',
+      'DrivingEnviromentId': 'driving_enviroment_id',
+      'Alias': 'alias',
+      'Descripcion': 'descripcion',
+      'Longitud': 'longitud',
+      'Permanente': 'permanente',
+      'TotSegments': 'tot_segments',
+      'SlotAnalogic': 'slot_analogic',
+      'SlotDigital': 'slot_digital',
+      'SlotTotLanes': 'slot_tot_lanes',
+      'CreatedAt': 'created_at',
+      'UpdatedAt': 'updated_at',
+    },
+
+    // 28. SEGMENTS
+    segments: {
+      'SegmentId': 'segment_id',
+      'CircuitId': 'circuit_id',
+      'Alias': 'alias',
+      'NumSegment': 'num_segment',
+      'NumLane': 'num_lane',
+      'TotSections': 'tot_sections',
+      'Longitud': 'longitud',
+      'CreatedAt': 'created_at',
+      'UpdatedAt': 'updated_at',
+    },
   },
 
   // ============ MAPEO DE COLUMNAS ID POR TABLA ============
@@ -274,6 +400,16 @@ export const DATABASE_CONFIG = {
     'entitylinks': 'entity_link_id',
     'specialities': 'speciality_id',
     'drivingenvironments': 'driving_environment_id',
+    'levels': 'level_id',
+    'groups': 'group_id',
+    'scoring': 'scoring_id',
+    'scoringdet': 'scoring_det_id',
+    'rulebooks': 'rulebook_id',
+    'rules': 'rule_id',
+    'seasons': 'season_id',
+    'venues': 'venue_id',
+    'circuits': 'circuit_id',
+    'segments': 'segment_id',
   },
 };
 

@@ -7,7 +7,7 @@ node_modules/
 vendor/
 test-data/
 z-eliminados/
-tests_JMeter/
+tests_Jmeter/
 tests_myscripts/
 
 # Ignorar archivos de configuración local
