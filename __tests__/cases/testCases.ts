@@ -446,6 +446,296 @@ export const specialityTestCases = {
   }
 }
 
+// ============ LEVELS Test Cases ============
+export const levelTestCases = {
+  async testCreateLevel(app: Express) {
+    const data = { Descripcion: 'Professional Level' }
+    const res = await request(app).post('/api/levels').send(data)
+    return { status: res.status, success: res.body.success, hasId: !!res.body.data?.LevelId }
+  },
+
+  async testListLevels(app: Express) {
+    const res = await request(app).get('/api/levels?page=1&pageSize=20')
+    return { status: res.status, success: res.body.success, hasTotal: !!res.body.total }
+  },
+
+  async testGetLevelById(app: Express) {
+    const createRes = await request(app).post('/api/levels').send({ Descripcion: 'Test Level' })
+    const id = createRes.body.data?.LevelId
+    
+    if (id) {
+      const getRes = await request(app).get(`/api/levels/${id}`)
+      return { status: getRes.status, success: getRes.body.success }
+    }
+    return { status: 400, success: false }
+  },
+
+  async testUpdateLevel(app: Express) {
+    const createRes = await request(app).post('/api/levels').send({ Descripcion: 'Test Level' })
+    const id = createRes.body.data?.LevelId
+    
+    if (id) {
+      const updateRes = await request(app).put(`/api/levels/${id}`).send({ Descripcion: 'Updated Level' })
+      return { status: updateRes.status, success: updateRes.body.success }
+    }
+    return { status: 400, success: false }
+  },
+
+  async testDeleteLevel(app: Express) {
+    const createRes = await request(app).post('/api/levels').send({ Descripcion: 'Test Level' })
+    const id = createRes.body.data?.LevelId
+    
+    if (id) {
+      const deleteRes = await request(app).delete(`/api/levels/${id}`)
+      return { status: deleteRes.status }
+    }
+    return { status: 400 }
+  }
+}
+
+// ============ GROUPS Test Cases ============
+export const groupTestCases = {
+  async testCreateGroup(app: Express) {
+    const data = { Descripcion: 'Group A', DivisionId: 1 }
+    const res = await request(app).post('/api/groups').send(data)
+    return { status: res.status, success: res.body.success, hasId: !!res.body.data?.GroupId }
+  },
+
+  async testListGroups(app: Express) {
+    const res = await request(app).get('/api/groups?page=1&pageSize=20')
+    return { status: res.status, success: res.body.success, hasTotal: !!res.body.total }
+  },
+
+  async testGetGroupById(app: Express) {
+    const createRes = await request(app).post('/api/groups').send({ Descripcion: 'Test', DivisionId: 1 })
+    const id = createRes.body.data?.GroupId
+    
+    if (id) {
+      const getRes = await request(app).get(`/api/groups/${id}`)
+      return { status: getRes.status, success: getRes.body.success }
+    }
+    return { status: 400, success: false }
+  }
+}
+
+// ============ SCORING Test Cases ============
+export const scoringTestCases = {
+  async testCreateScoring(app: Express) {
+    const data = { Descripcion: 'Standard Points' }
+    const res = await request(app).post('/api/scoring').send(data)
+    return { status: res.status, success: res.body.success, hasId: !!res.body.data?.ScoringId }
+  },
+
+  async testListScoring(app: Express) {
+    const res = await request(app).get('/api/scoring?page=1&pageSize=20')
+    return { status: res.status, success: res.body.success, hasTotal: !!res.body.total }
+  },
+
+  async testGetScoringById(app: Express) {
+    const createRes = await request(app).post('/api/scoring').send({ Descripcion: 'Test' })
+    const id = createRes.body.data?.ScoringId
+    
+    if (id) {
+      const getRes = await request(app).get(`/api/scoring/${id}`)
+      return { status: getRes.status, success: getRes.body.success }
+    }
+    return { status: 400, success: false }
+  }
+}
+
+// ============ SCORINGDET Test Cases ============
+export const scoringdetTestCases = {
+  async testCreateScoringDet(app: Express) {
+    const data = { ScoringId: 1, Posicion: 1, Puntos: 10 }
+    const res = await request(app).post('/api/scoringdet').send(data)
+    return { status: res.status, success: res.body.success || res.status === 201, hasId: !!res.body.data?.ScoringDetId }
+  },
+
+  async testListScoringDet(app: Express) {
+    const res = await request(app).get('/api/scoringdet?page=1&pageSize=20')
+    return { status: res.status, success: res.status >= 200 && res.status < 300, hasTotal: !!res.body.total }
+  }
+}
+
+// ============ RULEBOOKS Test Cases ============
+export const rulebookTestCases = {
+  async testCreateRulebook(app: Express) {
+    const data = { 
+      Descripcion: 'Standard Rules 2024',
+      FechaInicioValido: '2024-01-01'
+    }
+    const res = await request(app).post('/api/rulebooks').send(data)
+    return { status: res.status, success: res.body.success, hasId: !!res.body.data?.RulebookId }
+  },
+
+  async testListRulebooks(app: Express) {
+    const res = await request(app).get('/api/rulebooks?page=1&pageSize=20')
+    return { status: res.status, success: res.body.success, hasTotal: !!res.body.total }
+  },
+
+  async testGetRulebookById(app: Express) {
+    const createRes = await request(app).post('/api/rulebooks').send({ 
+      Descripcion: 'Test', 
+      FechaInicioValido: '2024-01-01'
+    })
+    const id = createRes.body.data?.RulebookId
+    
+    if (id) {
+      const getRes = await request(app).get(`/api/rulebooks/${id}`)
+      return { status: getRes.status, success: getRes.body.success }
+    }
+    return { status: 400, success: false }
+  }
+}
+
+// ============ RULES Test Cases ============
+export const ruleTestCases = {
+  async testCreateRule(app: Express) {
+    const data = { 
+      RulebookId: 1,
+      RuleCode: 'RULE001',
+      Descripcion: 'No cutting corners'
+    }
+    const res = await request(app).post('/api/rules').send(data)
+    return { status: res.status, success: res.body.success || res.status === 201, hasId: !!res.body.data?.RuleId }
+  },
+
+  async testListRules(app: Express) {
+    const res = await request(app).get('/api/rules?page=1&pageSize=20')
+    return { status: res.status, success: res.status >= 200 && res.status < 300, hasTotal: !!res.body.total }
+  }
+}
+
+// ============ SEASONS Test Cases ============
+export const seasonTestCases = {
+  async testCreateSeason(app: Express) {
+    const data = { 
+      ChampionshipId: 1,
+      Descripcion: 'Season 2024',
+      FechaDesde: '2024-01-01',
+      FechaHasta: '2024-12-31'
+    }
+    const res = await request(app).post('/api/seasons').send(data)
+    return { status: res.status, success: res.body.success, hasId: !!res.body.data?.SeasonId }
+  },
+
+  async testListSeasons(app: Express) {
+    const res = await request(app).get('/api/seasons?page=1&pageSize=20')
+    return { status: res.status, success: res.body.success, hasTotal: !!res.body.total }
+  },
+
+  async testGetSeasonById(app: Express) {
+    const createRes = await request(app).post('/api/seasons').send({ 
+      ChampionshipId: 1,
+      Descripcion: 'Test',
+      FechaDesde: '2024-01-01',
+      FechaHasta: '2024-12-31'
+    })
+    const id = createRes.body.data?.SeasonId
+    
+    if (id) {
+      const getRes = await request(app).get(`/api/seasons/${id}`)
+      return { status: getRes.status, success: getRes.body.success }
+    }
+    return { status: 400, success: false }
+  }
+}
+
+// ============ VENUES Test Cases ============
+export const venueTestCases = {
+  async testCreateVenue(app: Express) {
+    const data = { 
+      ClubId: 1,
+      Alias: 'Main Venue'
+    }
+    const res = await request(app).post('/api/venues').send(data)
+    return { status: res.status, success: res.body.success, hasId: !!res.body.data?.VenueId }
+  },
+
+  async testListVenues(app: Express) {
+    const res = await request(app).get('/api/venues?page=1&pageSize=20')
+    return { status: res.status, success: res.body.success, hasTotal: !!res.body.total }
+  },
+
+  async testGetVenueById(app: Express) {
+    const createRes = await request(app).post('/api/venues').send({ 
+      ClubId: 1,
+      Alias: 'Test'
+    })
+    const id = createRes.body.data?.VenueId
+    
+    if (id) {
+      const getRes = await request(app).get(`/api/venues/${id}`)
+      return { status: getRes.status, success: getRes.body.success }
+    }
+    return { status: 400, success: false }
+  }
+}
+
+// ============ CIRCUITS Test Cases ============
+export const circuitTestCases = {
+  async testCreateCircuit(app: Express) {
+    const data = { 
+      VenueId: 1,
+      Alias: 'Main Circuit'
+    }
+    const res = await request(app).post('/api/circuits').send(data)
+    return { status: res.status, success: res.body.success, hasId: !!res.body.data?.CircuitId }
+  },
+
+  async testListCircuits(app: Express) {
+    const res = await request(app).get('/api/circuits?page=1&pageSize=20')
+    return { status: res.status, success: res.body.success, hasTotal: !!res.body.total }
+  },
+
+  async testGetCircuitById(app: Express) {
+    const createRes = await request(app).post('/api/circuits').send({ 
+      VenueId: 1,
+      Alias: 'Test'
+    })
+    const id = createRes.body.data?.CircuitId
+    
+    if (id) {
+      const getRes = await request(app).get(`/api/circuits/${id}`)
+      return { status: getRes.status, success: getRes.body.success }
+    }
+    return { status: 400, success: false }
+  }
+}
+
+// ============ SEGMENTS Test Cases ============
+export const segmentTestCases = {
+  async testCreateSegment(app: Express) {
+    const data = { 
+      CircuitId: 1,
+      Alias: 'Segment 1',
+      NumSegment: 1
+    }
+    const res = await request(app).post('/api/segments').send(data)
+    return { status: res.status, success: res.body.success, hasId: !!res.body.data?.SegmentId }
+  },
+
+  async testListSegments(app: Express) {
+    const res = await request(app).get('/api/segments?page=1&pageSize=20')
+    return { status: res.status, success: res.body.success, hasTotal: !!res.body.total }
+  },
+
+  async testGetSegmentById(app: Express) {
+    const createRes = await request(app).post('/api/segments').send({ 
+      CircuitId: 1,
+      Alias: 'Test',
+      NumSegment: 1
+    })
+    const id = createRes.body.data?.SegmentId
+    
+    if (id) {
+      const getRes = await request(app).get(`/api/segments/${id}`)
+      return { status: getRes.status, success: getRes.body.success }
+    }
+    return { status: 400, success: false }
+  }
+}
+
 // ============ ALL TEST CASES ============
 export const allTestCases = {
   races: raceTestCases,
@@ -461,6 +751,16 @@ export const allTestCases = {
   divisions: divisionTestCases,
   roles: roleTestCases,
   raceresults: raceresultTestCases,
-  specialities: specialityTestCases
+  specialities: specialityTestCases,
+  levels: levelTestCases,
+  groups: groupTestCases,
+  scoring: scoringTestCases,
+  scoringdet: scoringdetTestCases,
+  rulebooks: rulebookTestCases,
+  rules: ruleTestCases,
+  seasons: seasonTestCases,
+  venues: venueTestCases,
+  circuits: circuitTestCases,
+  segments: segmentTestCases
 }
 

@@ -31,7 +31,7 @@ async function startServer() {
     // Iniciar servidor Express
     const server = app.listen(port, () => {
       console.log(`🚀 Servidor escuchando en http://localhost:${port}`);
-      console.log(`📊 18 tablas disponibles desde la base de datos`);
+      console.log(`📊 28 tablas disponibles desde la base de datos`);
     });
 
     // 🆕 Manejar cierre graceful de servidor

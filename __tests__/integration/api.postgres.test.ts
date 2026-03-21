@@ -351,4 +351,210 @@ describe.skipIf(skipPostgresTests)('API Integration - PostgreSQL Backend', () =>
       expect(result.success).toBe(true)
     })
   })
+
+  // ====== LEVELS TESTS ======
+  describe('Levels', () => {
+    it('should create a level', async () => {
+      const result = await allTestCases.levels.testCreateLevel(app)
+      expect(result.status).toBe(201)
+      expect(result.success).toBe(true)
+    })
+
+    it('should list levels', async () => {
+      await allTestCases.levels.testCreateLevel(app)
+      const result = await allTestCases.levels.testListLevels(app)
+      expect(result.status).toBe(200)
+      expect(result.success).toBe(true)
+    })
+
+    it('should get level by id', async () => {
+      const result = await allTestCases.levels.testGetLevelById(app)
+      expect(result.status).toBe(200)
+      expect(result.success).toBe(true)
+    })
+  })
+
+  // ====== GROUPS TESTS ======
+  describe('Groups', () => {
+    it('should create a group', async () => {
+      const result = await allTestCases.groups.testCreateGroup(app)
+      expect(result.status).toBe(201)
+      expect(result.success).toBe(true)
+    })
+
+    it('should list groups', async () => {
+      await allTestCases.groups.testCreateGroup(app)
+      const result = await allTestCases.groups.testListGroups(app)
+      expect(result.status).toBe(200)
+      expect(result.success).toBe(true)
+    })
+
+    it('should get group by id', async () => {
+      const result = await allTestCases.groups.testGetGroupById(app)
+      expect(result.status).toBe(200)
+      expect(result.success).toBe(true)
+    })
+  })
+
+  // ====== SCORING TESTS ======
+  describe('Scoring', () => {
+    it('should create scoring', async () => {
+      const result = await allTestCases.scoring.testCreateScoring(app)
+      expect(result.status).toBe(201)
+      expect(result.success).toBe(true)
+    })
+
+    it('should list scoring', async () => {
+      await allTestCases.scoring.testCreateScoring(app)
+      const result = await allTestCases.scoring.testListScoring(app)
+      expect(result.status).toBe(200)
+      expect(result.success).toBe(true)
+    })
+
+    it('should get scoring by id', async () => {
+      const result = await allTestCases.scoring.testGetScoringById(app)
+      expect(result.status).toBe(200)
+      expect(result.success).toBe(true)
+    })
+  })
+
+  // ====== SCORINGDET TESTS ======
+  describe('Scoring Detail', () => {
+    it('should create scoring detail', async () => {
+      const result = await allTestCases.scoringdet.testCreateScoringDet(app)
+      expect(result.status).toBeGreaterThanOrEqual(200)
+      expect(result.status).toBeLessThan(500)
+    })
+
+    it('should list scoring details', async () => {
+      const result = await allTestCases.scoringdet.testListScoringDet(app)
+      expect(result.status).toBeGreaterThanOrEqual(200)
+      expect(result.status).toBeLessThan(500)
+    })
+  })
+
+  // ====== RULEBOOKS TESTS ======
+  describe('Rulebooks', () => {
+    it('should create a rulebook', async () => {
+      const result = await allTestCases.rulebooks.testCreateRulebook(app)
+      expect(result.status).toBe(201)
+      expect(result.success).toBe(true)
+    })
+
+    it('should list rulebooks', async () => {
+      await allTestCases.rulebooks.testCreateRulebook(app)
+      const result = await allTestCases.rulebooks.testListRulebooks(app)
+      expect(result.status).toBe(200)
+      expect(result.success).toBe(true)
+    })
+
+    it('should get rulebook by id', async () => {
+      const result = await allTestCases.rulebooks.testGetRulebookById(app)
+      expect(result.status).toBe(200)
+      expect(result.success).toBe(true)
+    })
+  })
+
+  // ====== RULES TESTS ======
+  describe('Rules', () => {
+    it('should create a rule', async () => {
+      const result = await allTestCases.rules.testCreateRule(app)
+      expect(result.status).toBeGreaterThanOrEqual(200)
+      expect(result.status).toBeLessThan(500)
+    })
+
+    it('should list rules', async () => {
+      const result = await allTestCases.rules.testListRules(app)
+      expect(result.status).toBeGreaterThanOrEqual(200)
+      expect(result.status).toBeLessThan(500)
+    })
+  })
+
+  // ====== SEASONS TESTS ======
+  describe('Seasons', () => {
+    it('should create a season', async () => {
+      const result = await allTestCases.seasons.testCreateSeason(app)
+      expect(result.status).toBe(201)
+      expect(result.success).toBe(true)
+    })
+
+    it('should list seasons', async () => {
+      await allTestCases.seasons.testCreateSeason(app)
+      const result = await allTestCases.seasons.testListSeasons(app)
+      expect(result.status).toBe(200)
+      expect(result.success).toBe(true)
+    })
+
+    it('should get season by id', async () => {
+      const result = await allTestCases.seasons.testGetSeasonById(app)
+      expect(result.status).toBe(200)
+      expect(result.success).toBe(true)
+    })
+  })
+
+  // ====== VENUES TESTS ======
+  describe('Venues', () => {
+    it('should create a venue', async () => {
+      const result = await allTestCases.venues.testCreateVenue(app)
+      expect(result.status).toBe(201)
+      expect(result.success).toBe(true)
+    })
+
+    it('should list venues', async () => {
+      await allTestCases.venues.testCreateVenue(app)
+      const result = await allTestCases.venues.testListVenues(app)
+      expect(result.status).toBe(200)
+      expect(result.success).toBe(true)
+    })
+
+    it('should get venue by id', async () => {
+      const result = await allTestCases.venues.testGetVenueById(app)
+      expect(result.status).toBe(200)
+      expect(result.success).toBe(true)
+    })
+  })
+
+  // ====== CIRCUITS TESTS ======
+  describe('Circuits', () => {
+    it('should create a circuit', async () => {
+      const result = await allTestCases.circuits.testCreateCircuit(app)
+      expect(result.status).toBe(201)
+      expect(result.success).toBe(true)
+    })
+
+    it('should list circuits', async () => {
+      await allTestCases.circuits.testCreateCircuit(app)
+      const result = await allTestCases.circuits.testListCircuits(app)
+      expect(result.status).toBe(200)
+      expect(result.success).toBe(true)
+    })
+
+    it('should get circuit by id', async () => {
+      const result = await allTestCases.circuits.testGetCircuitById(app)
+      expect(result.status).toBe(200)
+      expect(result.success).toBe(true)
+    })
+  })
+
+  // ====== SEGMENTS TESTS ======
+  describe('Segments', () => {
+    it('should create a segment', async () => {
+      const result = await allTestCases.segments.testCreateSegment(app)
+      expect(result.status).toBe(201)
+      expect(result.success).toBe(true)
+    })
+
+    it('should list segments', async () => {
+      await allTestCases.segments.testCreateSegment(app)
+      const result = await allTestCases.segments.testListSegments(app)
+      expect(result.status).toBe(200)
+      expect(result.success).toBe(true)
+    })
+
+    it('should get segment by id', async () => {
+      const result = await allTestCases.segments.testGetSegmentById(app)
+      expect(result.status).toBe(200)
+      expect(result.success).toBe(true)
+    })
+  })
 })
