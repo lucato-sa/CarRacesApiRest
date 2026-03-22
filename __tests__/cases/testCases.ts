@@ -736,6 +736,28 @@ export const segmentTestCases = {
   }
 }
 
+export const drivingEnvironmentTestCases = {
+  async testListDrivingEnvironments(app: Express) {
+    const res = await request(app).get('/api/driving_environments?page=1&pageSize=20')
+    console.log('📊 GET DRIVING ENVIRONMENTS RESPONSE:')
+    console.log('Status:', res.status)
+    console.log('Body:', JSON.stringify(res.body, null, 2))
+    return { status: res.status, success: res.body.success, hasTotal: !!res.body.total }
+  },
+
+  async testGetDrivingEnvironmentById(app: Express) {
+    const id = 1
+    
+    if (id) {
+      const getRes = await request(app).get(`/api/driving_environments/${id}`)
+      return { status: getRes.status, success: getRes.body.success }
+    }
+    return { status: 400, success: false }
+  }
+}
+
+
+
 // ============ ALL TEST CASES ============
 export const allTestCases = {
   races: raceTestCases,
@@ -761,6 +783,7 @@ export const allTestCases = {
   seasons: seasonTestCases,
   venues: venueTestCases,
   circuits: circuitTestCases,
-  segments: segmentTestCases
+  segments: segmentTestCases,
+  drivingenvironments: drivingEnvironmentTestCases 
 }
 

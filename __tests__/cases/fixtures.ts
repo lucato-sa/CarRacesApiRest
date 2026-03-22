@@ -382,7 +382,7 @@ export const secondSpeciality = {
  * ENTIDAD 18: DRIVINGENVIRONMENTS (Ambientes de Conducción)
  * ═══════════════════════════════════════════════════════════════
  */
-
+/* CTorre: 22-03-2026 descarto, valores iniciales
 export const validDrivingEnvironment = {
   Alias: 'COCHES_TURISMO',
   Descripcion: 'Conducción de turismos',
@@ -394,6 +394,7 @@ export const secondDrivingEnvironment = {
   Descripcion: 'Conducción de motocicletas',
   Default: false,
 }
+*/  
 
 /**
  * ═══════════════════════════════════════════════════════════════
@@ -474,10 +475,12 @@ export const testDataSets = {
     valid: validSpeciality,
     second: secondSpeciality,
   },
+  /* CTorre: 22-03-2026 descarto, valores iniciales
   drivingEnvironments: {
     valid: validDrivingEnvironment,
     second: secondDrivingEnvironment,
   },
+  */
 }
 
 /**

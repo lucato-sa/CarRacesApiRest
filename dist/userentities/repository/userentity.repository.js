@@ -9,7 +9,7 @@ const database_config_1 = require("../../config/database.config");
 class UserEntityRepository {
     async getAll() {
         const query = `
-      SELECT user_entity_id, user_id, entity_link_id, rol_id, created_at, updated_at
+      SELECT user_entity_id, user_id, entity_link_id, rol_id, entity_link_id_dat, created_at, updated_at
       FROM user_entities
       ORDER BY user_entity_id ASC
     `;
@@ -18,7 +18,7 @@ class UserEntityRepository {
     }
     async getById(id) {
         const query = `
-      SELECT user_entity_id, user_id, entity_link_id, rol_id, created_at, updated_at
+      SELECT user_entity_id, user_id, entity_link_id, rol_id, entity_link_id_dat, created_at, updated_at
       FROM user_entities
       WHERE user_entity_id = $1
       LIMIT 1
@@ -28,7 +28,7 @@ class UserEntityRepository {
     }
     async getByUser(userId) {
         const query = `
-      SELECT user_entity_id, user_id, entity_link_id, rol_id, created_at, updated_at
+      SELECT user_entity_id, user_id, entity_link_id, rol_id, entity_link_id_dat, created_at, updated_at
       FROM user_entities
       WHERE user_id = $1
       ORDER BY user_entity_id ASC
@@ -38,7 +38,7 @@ class UserEntityRepository {
     }
     async getByEntityLink(entityLinkId) {
         const query = `
-      SELECT user_entity_id, user_id, entity_link_id, rol_id, created_at, updated_at
+      SELECT user_entity_id, user_id, entity_link_id, rol_id, entity_link_id_dat, created_at, updated_at
       FROM user_entities
       WHERE entity_link_id = $1
       ORDER BY user_entity_id ASC
@@ -48,7 +48,7 @@ class UserEntityRepository {
     }
     async getByRole(rolId) {
         const query = `
-      SELECT user_entity_id, user_id, entity_link_id, rol_id, created_at, updated_at
+      SELECT user_entity_id, user_id, entity_link_id, rol_id, entity_link_id_dat, created_at, updated_at
       FROM user_entities
       WHERE rol_id = $1
       ORDER BY user_entity_id ASC
@@ -61,14 +61,15 @@ class UserEntityRepository {
             throw new Error('Missing required fields: UserId, EntityLinkId, RolId');
         }
         const query = `
-      INSERT INTO user_entities (user_id, entity_link_id, rol_id, created_at, updated_at)
-      VALUES ($1, $2, $3, NOW(), NOW())
-      RETURNING user_entity_id, user_id, entity_link_id, rol_id, created_at, updated_at
+      INSERT INTO user_entities (user_id, entity_link_id, rol_id, entity_link_id_dat, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, NOW(), NOW())
+      RETURNING user_entity_id, user_id, entity_link_id, rol_id, entity_link_id_dat, created_at, updated_at
     `;
         const params = [
             userEntity.UserId,
             userEntity.EntityLinkId,
             userEntity.RolId,
+            userEntity.EntityLinkIdDat || null,
         ];
         const row = await (0, data_source_1.queryOne)(query, params);
         if (!row)
@@ -94,7 +95,7 @@ class UserEntityRepository {
       UPDATE user_entities
       SET ${updates.join(', ')}
       WHERE user_entity_id = $${paramCount}
-      RETURNING user_entity_id, user_id, entity_link_id, rol_id, created_at, updated_at
+      RETURNING user_entity_id, user_id, entity_link_id, rol_id, entity_link_id_dat, created_at, updated_at
     `;
         const row = await (0, data_source_1.queryOne)(query, params);
         return row ? (0, database_config_1.dbToDto)('userentities', row) : undefined;

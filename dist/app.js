@@ -143,7 +143,7 @@ function createApp(backend) {
     app.get('/api/health', (req, res) => {
         res.status(200).json({ status: 'ok', backend: 'SupabaseBackend' });
     });
-    // === ENTITIES: Register CRUD routes for all 18 entities ===
+    // === ENTITIES: Register CRUD routes for all entities ===
     const entities = [
         'clubs',
         'users',
@@ -152,17 +152,27 @@ function createApp(backend) {
         'roles',
         'specialities',
         'divisions',
+        'groups',
+        'levels',
+        'scoring',
+        'scoring_det',  
+        'rulebooks',
+        'rules',
+        'seasons',
         'disciplines',
         'surfaces',
         'formats',
-        'drivingenviroments',
-        'entitylinks',
+        'venues',
+        'circuits',
+        'segments',        
+        'driving_environments',
+        'entity_links',
         'registrations',
         'championships',
         'races',
-        'raceresults',
-        'userentities',
-        'rolentities'
+        'race_results',
+        'user_entities',
+        'rol_entities'
     ];
     entities.forEach(entity => {
         const router = createEntityRoutes(entity, backend);

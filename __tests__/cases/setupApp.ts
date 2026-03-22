@@ -760,20 +760,20 @@ export async function createTestApp(backend: IBackend): Promise<Express> {
 
   // ============ RACERESULTS Routes ============
   const raceresultsRouter = Router()
-  raceresultsRouter.post('/raceresults', async (req, res) => {
+  raceresultsRouter.post('/race_results', async (req, res) => {
     try {
       const data = req.body
-      const result = await backend.create('raceresults', data)
+      const result = await backend.create('race_results', data)
       res.status(201).json({ success: true, data: result })
     } catch (error) {
       res.status(400).json({ success: false, error: (error as Error).message })
     }
   })
 
-  raceresultsRouter.get('/raceresults', async (req, res) => {
+  raceresultsRouter.get('/race_results', async (req, res) => {
     try {
       const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
-      const results = await backend.readAll('raceresults', Object.keys(filters).length > 0 ? filters : undefined);
+      const results = await backend.readAll('race_results', Object.keys(filters).length > 0 ? filters : undefined);
       const paginated = applyPagination(results, page, pageSize);
       res.status(200).json({ 
         success: true,
@@ -787,9 +787,9 @@ export async function createTestApp(backend: IBackend): Promise<Express> {
     }
   })
 
-  raceresultsRouter.get('/raceresults/:id', async (req, res) => {
+  raceresultsRouter.get('/race_results/:id', async (req, res) => {
     try {
-      const result = await backend.read('raceresults', parseInt(req.params.id))
+      const result = await backend.read('race_results', parseInt(req.params.id))
       if (!result) {
         return res.status(404).json({ success: false, error: 'Not found' })
       }
@@ -799,18 +799,18 @@ export async function createTestApp(backend: IBackend): Promise<Express> {
     }
   })
 
-  raceresultsRouter.put('/raceresults/:id', async (req, res) => {
+  raceresultsRouter.put('/race_results/:id', async (req, res) => {
     try {
-      const result = await backend.update('raceresults', parseInt(req.params.id), req.body)
+      const result = await backend.update('race_results', parseInt(req.params.id), req.body)
       res.status(200).json({ success: true, data: result })
     } catch (error) {
       res.status(400).json({ success: false, error: (error as Error).message })
     }
   })
 
-  raceresultsRouter.delete('/raceresults/:id', async (req, res) => {
+  raceresultsRouter.delete('/race_results/:id', async (req, res) => {
     try {
-      await backend.delete('raceresults', parseInt(req.params.id))
+      await backend.delete('race_results', parseInt(req.params.id))
       res.status(204).send()
     } catch (error) {
       res.status(400).json({ success: false, error: (error as Error).message })
@@ -876,6 +876,832 @@ export async function createTestApp(backend: IBackend): Promise<Express> {
     }
   })
 
+  // ============ DRIVING ENVIRONMENTS Routes ============
+  const drivingenvironmentsRouter = Router()
+  drivingenvironmentsRouter.post('/driving_environments', async (req, res) => {
+    try {
+      const data = req.body
+      const result = await backend.create('driving_environments', data)
+      res.status(201).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  drivingenvironmentsRouter.get('/driving_environments', async (req, res) => {
+    try {
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('driving_environments', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
+      res.status(200).json({ 
+        success: true,
+        total: paginated.total,
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
+      })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  drivingenvironmentsRouter.get('/driving_environments/:id', async (req, res) => {
+    try {
+      const result = await backend.read('driving_environments', parseInt(req.params.id))
+      if (!result) {
+        return res.status(404).json({ success: false, error: 'Not found' })
+      }
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  drivingenvironmentsRouter.put('/driving_environments/:id', async (req, res) => {
+    try {
+      const result = await backend.update('driving_environments', parseInt(req.params.id), req.body)
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  drivingenvironmentsRouter.delete('/driving_environments/:id', async (req, res) => {
+    try {
+      await backend.delete('driving_environments', parseInt(req.params.id))
+      res.status(204).send()
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  // ============ ENTITY LINKS Routes ============
+  const entitylinksRouter = Router()
+  entitylinksRouter.post('/entity_links', async (req, res) => {
+    try {
+      const data = req.body
+      const result = await backend.create('entity_links', data)
+      res.status(201).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  entitylinksRouter.get('/entity_links', async (req, res) => {
+    try {
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('entity_links', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
+      res.status(200).json({ 
+        success: true,
+        total: paginated.total,
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
+      })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  entitylinksRouter.get('/entity_links/:id', async (req, res) => {
+    try {
+      const result = await backend.read('entity_links', parseInt(req.params.id))
+      if (!result) {
+        return res.status(404).json({ success: false, error: 'Not found' })
+      }
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  entitylinksRouter.put('/entity_links/:id', async (req, res) => {
+    try {
+      const result = await backend.update('entity_links', parseInt(req.params.id), req.body)
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  entitylinksRouter.delete('/entity_links/:id', async (req, res) => {
+    try {
+      await backend.delete('entity_links', parseInt(req.params.id))
+      res.status(204).send()
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  // ============ USER ENTITIES Routes ============
+  const userentitiesRouter = Router()
+  userentitiesRouter.post('/user_entities', async (req, res) => {
+    try {
+      const data = req.body
+      const result = await backend.create('user_entities', data)
+      res.status(201).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  userentitiesRouter.get('/user_entities', async (req, res) => {
+    try {
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('user_entities', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
+      res.status(200).json({ 
+        success: true,
+        total: paginated.total,
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
+      })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  userentitiesRouter.get('/user_entities/:id', async (req, res) => {
+    try {
+      const result = await backend.read('user_entities', parseInt(req.params.id))
+      if (!result) {
+        return res.status(404).json({ success: false, error: 'Not found' })
+      }
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  userentitiesRouter.put('/user_entities/:id', async (req, res) => {
+    try {
+      const result = await backend.update('user_entities', parseInt(req.params.id), req.body)
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  userentitiesRouter.delete('/user_entities/:id', async (req, res) => {
+    try {
+      await backend.delete('user_entities', parseInt(req.params.id))
+      res.status(204).send()
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  // ============ ROLE ENTITIES Routes ============
+  const rolentitiesRouter = Router()
+  rolentitiesRouter.post('/rol_entities', async (req, res) => {
+    try {
+      const data = req.body
+      const result = await backend.create('rol_entities', data)
+      res.status(201).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  rolentitiesRouter.get('/rol_entities', async (req, res) => {
+    try {
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('rol_entities', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
+      res.status(200).json({ 
+        success: true,
+        total: paginated.total,
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
+      })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  rolentitiesRouter.get('/rol_entities/:id', async (req, res) => {
+    try {
+      const result = await backend.read('rol_entities', parseInt(req.params.id))
+      if (!result) {
+        return res.status(404).json({ success: false, error: 'Not found' })
+      }
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  rolentitiesRouter.put('/rol_entities/:id', async (req, res) => {
+    try {
+      const result = await backend.update('rol_entities', parseInt(req.params.id), req.body)
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  rolentitiesRouter.delete('/rol_entities/:id', async (req, res) => {
+    try {
+      await backend.delete('rol_entities', parseInt(req.params.id))
+      res.status(204).send()
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  // ============ LEVELS Routes ============
+  const levelsRouter = Router()
+  levelsRouter.post('/levels', async (req, res) => {
+    try {
+      const data = req.body
+      const result = await backend.create('levels', data)
+      res.status(201).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  levelsRouter.get('/levels', async (req, res) => {
+    try {
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('levels', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
+      res.status(200).json({ 
+        success: true,
+        total: paginated.total,
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
+      })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  levelsRouter.get('/levels/:id', async (req, res) => {
+    try {
+      const result = await backend.read('levels', parseInt(req.params.id))
+      if (!result) {
+        return res.status(404).json({ success: false, error: 'Not found' })
+      }
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  levelsRouter.put('/levels/:id', async (req, res) => {
+    try {
+      const result = await backend.update('levels', parseInt(req.params.id), req.body)
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  levelsRouter.delete('/levels/:id', async (req, res) => {
+    try {
+      await backend.delete('levels', parseInt(req.params.id))
+      res.status(204).send()
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  // ============ GROUPS Routes ============
+  const groupsRouter = Router()
+  groupsRouter.post('/groups', async (req, res) => {
+    try {
+      const data = req.body
+      const result = await backend.create('groups', data)
+      res.status(201).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  groupsRouter.get('/groups', async (req, res) => {
+    try {
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('groups', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
+      res.status(200).json({ 
+        success: true,
+        total: paginated.total,
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
+      })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  groupsRouter.get('/groups/:id', async (req, res) => {
+    try {
+      const result = await backend.read('groups', parseInt(req.params.id))
+      if (!result) {
+        return res.status(404).json({ success: false, error: 'Not found' })
+      }
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  groupsRouter.put('/groups/:id', async (req, res) => {
+    try {
+      const result = await backend.update('groups', parseInt(req.params.id), req.body)
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  groupsRouter.delete('/groups/:id', async (req, res) => {
+    try {
+      await backend.delete('groups', parseInt(req.params.id))
+      res.status(204).send()
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  // ============ SCORING Routes ============
+  const scoringRouter = Router()
+  scoringRouter.post('/scoring', async (req, res) => {
+    try {
+      const data = req.body
+      const result = await backend.create('scoring', data)
+      res.status(201).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  scoringRouter.get('/scoring', async (req, res) => {
+    try {
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('scoring', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
+      res.status(200).json({ 
+        success: true,
+        total: paginated.total,
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
+      })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  scoringRouter.get('/scoring/:id', async (req, res) => {
+    try {
+      const result = await backend.read('scoring', parseInt(req.params.id))
+      if (!result) {
+        return res.status(404).json({ success: false, error: 'Not found' })
+      }
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  scoringRouter.put('/scoring/:id', async (req, res) => {
+    try {
+      const result = await backend.update('scoring', parseInt(req.params.id), req.body)
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  scoringRouter.delete('/scoring/:id', async (req, res) => {
+    try {
+      await backend.delete('scoring', parseInt(req.params.id))
+      res.status(204).send()
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  // ============ SCORING DET Routes ============
+  const scoringdetRouter = Router()
+  scoringdetRouter.post('/scoring_det', async (req, res) => {
+    try {
+      const data = req.body
+      const result = await backend.create('scoring_det', data)
+      res.status(201).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  scoringdetRouter.get('/scoring_det', async (req, res) => {
+    try {
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('scoring_det', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
+      res.status(200).json({ 
+        success: true,
+        total: paginated.total,
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
+      })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  scoringdetRouter.get('/scoring_det/:id', async (req, res) => {
+    try {
+      const result = await backend.read('scoring_det', parseInt(req.params.id))
+      if (!result) {
+        return res.status(404).json({ success: false, error: 'Not found' })
+      }
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  scoringdetRouter.put('/scoring_det/:id', async (req, res) => {
+    try {
+      const result = await backend.update('scoring_det', parseInt(req.params.id), req.body)
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  scoringdetRouter.delete('/scoring_det/:id', async (req, res) => {
+    try {
+      await backend.delete('scoring_det', parseInt(req.params.id))
+      res.status(204).send()
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  // ============ RULEBOOKS Routes ============
+  const rulebooksRouter = Router()
+  rulebooksRouter.post('/rulebooks', async (req, res) => {
+    try {
+      const data = req.body
+      const result = await backend.create('rulebooks', data)
+      res.status(201).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  rulebooksRouter.get('/rulebooks', async (req, res) => {
+    try {
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('rulebooks', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
+      res.status(200).json({ 
+        success: true,
+        total: paginated.total,
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
+      })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  rulebooksRouter.get('/rulebooks/:id', async (req, res) => {
+    try {
+      const result = await backend.read('rulebooks', parseInt(req.params.id))
+      if (!result) {
+        return res.status(404).json({ success: false, error: 'Not found' })
+      }
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  rulebooksRouter.put('/rulebooks/:id', async (req, res) => {
+    try {
+      const result = await backend.update('rulebooks', parseInt(req.params.id), req.body)
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  rulebooksRouter.delete('/rulebooks/:id', async (req, res) => {
+    try {
+      await backend.delete('rulebooks', parseInt(req.params.id))
+      res.status(204).send()
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  // ============ RULES Routes ============
+  const rulesRouter = Router()
+  rulesRouter.post('/rules', async (req, res) => {
+    try {
+      const data = req.body
+      const result = await backend.create('rules', data)
+      res.status(201).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  rulesRouter.get('/rules', async (req, res) => {
+    try {
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('rules', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
+      res.status(200).json({ 
+        success: true,
+        total: paginated.total,
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
+      })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  rulesRouter.get('/rules/:id', async (req, res) => {
+    try {
+      const result = await backend.read('rules', parseInt(req.params.id))
+      if (!result) {
+        return res.status(404).json({ success: false, error: 'Not found' })
+      }
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  rulesRouter.put('/rules/:id', async (req, res) => {
+    try {
+      const result = await backend.update('rules', parseInt(req.params.id), req.body)
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  rulesRouter.delete('/rules/:id', async (req, res) => {
+    try {
+      await backend.delete('rules', parseInt(req.params.id))
+      res.status(204).send()
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  // ============ SEASONS Routes ============
+  const seasonsRouter = Router()
+  seasonsRouter.post('/seasons', async (req, res) => {
+    try {
+      const data = req.body
+      const result = await backend.create('seasons', data)
+      res.status(201).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  seasonsRouter.get('/seasons', async (req, res) => {
+    try {
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('seasons', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
+      res.status(200).json({ 
+        success: true,
+        total: paginated.total,
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
+      })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  seasonsRouter.get('/seasons/:id', async (req, res) => {
+    try {
+      const result = await backend.read('seasons', parseInt(req.params.id))
+      if (!result) {
+        return res.status(404).json({ success: false, error: 'Not found' })
+      }
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  seasonsRouter.put('/seasons/:id', async (req, res) => {
+    try {
+      const result = await backend.update('seasons', parseInt(req.params.id), req.body)
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  seasonsRouter.delete('/seasons/:id', async (req, res) => {
+    try {
+      await backend.delete('seasons', parseInt(req.params.id))
+      res.status(204).send()
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  // ============ VENUES Routes ============
+  const venuesRouter = Router()
+  venuesRouter.post('/venues', async (req, res) => {
+    try {
+      const data = req.body
+      const result = await backend.create('venues', data)
+      res.status(201).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  venuesRouter.get('/venues', async (req, res) => {
+    try {
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('venues', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
+      res.status(200).json({ 
+        success: true,
+        total: paginated.total,
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
+      })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  venuesRouter.get('/venues/:id', async (req, res) => {
+    try {
+      const result = await backend.read('venues', parseInt(req.params.id))
+      if (!result) {
+        return res.status(404).json({ success: false, error: 'Not found' })
+      }
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  venuesRouter.put('/venues/:id', async (req, res) => {
+    try {
+      const result = await backend.update('venues', parseInt(req.params.id), req.body)
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  venuesRouter.delete('/venues/:id', async (req, res) => {
+    try {
+      await backend.delete('venues', parseInt(req.params.id))
+      res.status(204).send()
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  // ============ CIRCUITS Routes ============
+  const circuitsRouter = Router()
+  circuitsRouter.post('/circuits', async (req, res) => {
+    try {
+      const data = req.body
+      const result = await backend.create('circuits', data)
+      res.status(201).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  circuitsRouter.get('/circuits', async (req, res) => {
+    try {
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('circuits', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
+      res.status(200).json({ 
+        success: true,
+        total: paginated.total,
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
+      })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  circuitsRouter.get('/circuits/:id', async (req, res) => {
+    try {
+      const result = await backend.read('circuits', parseInt(req.params.id))
+      if (!result) {
+        return res.status(404).json({ success: false, error: 'Not found' })
+      }
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  circuitsRouter.put('/circuits/:id', async (req, res) => {
+    try {
+      const result = await backend.update('circuits', parseInt(req.params.id), req.body)
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  circuitsRouter.delete('/circuits/:id', async (req, res) => {
+    try {
+      await backend.delete('circuits', parseInt(req.params.id))
+      res.status(204).send()
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  // ============ SEGMENTS Routes ============
+  const segmentsRouter = Router()
+  segmentsRouter.post('/segments', async (req, res) => {
+    try {
+      const data = req.body
+      const result = await backend.create('segments', data)
+      res.status(201).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  segmentsRouter.get('/segments', async (req, res) => {
+    try {
+      const { page, pageSize, filters } = extractPaginationAndFilters(req.query);
+      const results = await backend.readAll('segments', Object.keys(filters).length > 0 ? filters : undefined);
+      const paginated = applyPagination(results, page, pageSize);
+      res.status(200).json({ 
+        success: true,
+        total: paginated.total,
+        items: paginated.items,
+        page: paginated.page,
+        pageSize: paginated.pageSize
+      })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  segmentsRouter.get('/segments/:id', async (req, res) => {
+    try {
+      const result = await backend.read('segments', parseInt(req.params.id))
+      if (!result) {
+        return res.status(404).json({ success: false, error: 'Not found' })
+      }
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  segmentsRouter.put('/segments/:id', async (req, res) => {
+    try {
+      const result = await backend.update('segments', parseInt(req.params.id), req.body)
+      res.status(200).json({ success: true, data: result })
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
+  segmentsRouter.delete('/segments/:id', async (req, res) => {
+    try {
+      await backend.delete('segments', parseInt(req.params.id))
+      res.status(204).send()
+    } catch (error) {
+      res.status(400).json({ success: false, error: (error as Error).message })
+    }
+  })
+
   // Register all routers
   app.use('/api', clubsRouter)
   app.use('/api', usersRouter)
@@ -891,6 +1717,20 @@ export async function createTestApp(backend: IBackend): Promise<Express> {
   app.use('/api', rolesRouter)
   app.use('/api', raceresultsRouter)
   app.use('/api', specialitiesRouter)
+  app.use('/api', drivingenvironmentsRouter)
+  app.use('/api', entitylinksRouter)
+  app.use('/api', userentitiesRouter)
+  app.use('/api', rolentitiesRouter)
+  app.use('/api', levelsRouter)
+  app.use('/api', groupsRouter)
+  app.use('/api', scoringRouter)
+  app.use('/api', scoringdetRouter)
+  app.use('/api', rulebooksRouter)
+  app.use('/api', rulesRouter)
+  app.use('/api', seasonsRouter)
+  app.use('/api', venuesRouter)
+  app.use('/api', circuitsRouter)
+  app.use('/api', segmentsRouter)
 
   return app
 }

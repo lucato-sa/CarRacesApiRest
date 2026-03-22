@@ -399,7 +399,7 @@ export const DATABASE_CONFIG = {
     'raceresults': 'result_id',
     'entitylinks': 'entity_link_id',
     'specialities': 'speciality_id',
-    'drivingenvironments': 'driving_environment_id',
+    'driving_environments': 'driving_environment_id',
     'levels': 'level_id',
     'groups': 'group_id',
     'scoring': 'scoring_id',

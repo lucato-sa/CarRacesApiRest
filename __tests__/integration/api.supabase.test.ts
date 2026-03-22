@@ -53,7 +53,7 @@ describe.skipIf(skipSupabaseTests)('API Integration - Supabase Backend', () => {
       expect(result.status).toBe(200)
     })
   })
-
+ 
   // ====== RACES TESTS ======
   describe('Races', () => {
     it('should create a race', async () => {
@@ -378,7 +378,7 @@ describe.skipIf(skipSupabaseTests)('API Integration - Supabase Backend', () => {
     })
 
     it('should list levels', async () => {
-      await allTestCases.levels.testCreateLevel(app)
+      // await allTestCases.levels.testCreateLevel(app)
       const result = await allTestCases.levels.testListLevels(app)
       expect(result.status).toBe(200)
       expect(result.success).toBe(true)
@@ -400,7 +400,7 @@ describe.skipIf(skipSupabaseTests)('API Integration - Supabase Backend', () => {
     })
 
     it('should list groups', async () => {
-      await allTestCases.groups.testCreateGroup(app)
+      //await allTestCases.groups.testCreateGroup(app)
       const result = await allTestCases.groups.testListGroups(app)
       expect(result.status).toBe(200)
       expect(result.success).toBe(true)
@@ -422,7 +422,7 @@ describe.skipIf(skipSupabaseTests)('API Integration - Supabase Backend', () => {
     })
 
     it('should list scoring', async () => {
-      await allTestCases.scoring.testCreateScoring(app)
+      //await allTestCases.scoring.testCreateScoring(app)
       const result = await allTestCases.scoring.testListScoring(app)
       expect(result.status).toBe(200)
       expect(result.success).toBe(true)
@@ -496,7 +496,7 @@ describe.skipIf(skipSupabaseTests)('API Integration - Supabase Backend', () => {
     })
 
     it('should list seasons', async () => {
-      await allTestCases.seasons.testCreateSeason(app)
+      //await allTestCases.seasons.testCreateSeason(app)
       const result = await allTestCases.seasons.testListSeasons(app)
       expect(result.status).toBe(200)
       expect(result.success).toBe(true)
@@ -518,7 +518,7 @@ describe.skipIf(skipSupabaseTests)('API Integration - Supabase Backend', () => {
     })
 
     it('should list venues', async () => {
-      await allTestCases.venues.testCreateVenue(app)
+      // await allTestCases.venues.testCreateVenue(app)
       const result = await allTestCases.venues.testListVenues(app)
       expect(result.status).toBe(200)
       expect(result.success).toBe(true)
@@ -540,7 +540,7 @@ describe.skipIf(skipSupabaseTests)('API Integration - Supabase Backend', () => {
     })
 
     it('should list circuits', async () => {
-      await allTestCases.circuits.testCreateCircuit(app)
+      //await allTestCases.circuits.testCreateCircuit(app)
       const result = await allTestCases.circuits.testListCircuits(app)
       expect(result.status).toBe(200)
       expect(result.success).toBe(true)
@@ -562,7 +562,7 @@ describe.skipIf(skipSupabaseTests)('API Integration - Supabase Backend', () => {
     })
 
     it('should list segments', async () => {
-      await allTestCases.segments.testCreateSegment(app)
+      //await allTestCases.segments.testCreateSegment(app)
       const result = await allTestCases.segments.testListSegments(app)
       expect(result.status).toBe(200)
       expect(result.success).toBe(true)
@@ -574,4 +574,22 @@ describe.skipIf(skipSupabaseTests)('API Integration - Supabase Backend', () => {
       expect(result.success).toBe(true)
     })
   })
+
+ // ====== DRIVING ENVIRONMENTS TESTS ======
+  describe('Drivingenvironments', () => {
+
+    it('should list driving environments', async () => {
+      //await allTestCases.levels.testCreateLevel(app)
+      const result = await allTestCases.drivingenvironments.testListDrivingEnvironments(app)
+      expect(result.status).toBe(200)
+      expect(result.success).toBe(true)
+    })
+
+    it('should get driving environments by id', async () => {
+      const result = await allTestCases.drivingenvironments.testGetDrivingEnvironmentById(app)
+      expect(result.status).toBe(200)
+      expect(result.success).toBe(true)
+    })
+  })
+
 })
