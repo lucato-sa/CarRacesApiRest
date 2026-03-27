@@ -1,0 +1,117 @@
+# version: '3.8'
+
+services:
+  # ============================================
+  # 🗄️ PostgreSQL Database
+  # ============================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: caraces-postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME:-carracesapi}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      # Configurar zona horaria
+      TZ: 'UTC'
+    ports:
+      # Mapear puerto solo si quieres acceder desde la máquina host
+      # Comentar durante producción por seguridad
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      # Persistencia de datos
+      - postgres_data:/var/lib/postgresql/data
+      # Script de inicialización (opcional)
+      # - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - caraces-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # Mejora de seguridad: límites de recursos
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  # ============================================
+  # 🚀 API REST - CarRaces
+  # ============================================
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: caraces-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # 🌍 Ambiente
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${PORT:-3000}
+      
+      # 🎯 Backend
+      BACKEND: ${BACKEND:-postgres}
+      
+      # 🗄️ PostgreSQL Connection
+      DB_HOST: postgres  # Nombre del servicio Docker (no localhost)
+      DB_PORT: ${DB_PORT:-5432}
+      DB_NAME: ${DB_NAME:-carracesapi}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      
+      # 🔗 URL de conexión para TypeORM (opcional)
+      DATABASE_URL: postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@postgres:5432/${DB_NAME:-carracesapi}
+    
+    ports:
+      - "${PORT:-3000}:3000"
+    
+    networks:
+      - caraces-network
+    
+    restart: unless-stopped
+    
+    # Healthcheck
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    # Límites de recursos
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 512M
+        reservations:
+          cpus: '1'
+          memory: 256M
+    
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# ============================================
+# Volúmenes
+# ============================================
+volumes:
+  postgres_data:
+    driver: local
+
+# ============================================
+# Redes
+# ============================================
+networks:
+  caraces-network:
+    driver: bridge
