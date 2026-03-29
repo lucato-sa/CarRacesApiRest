@@ -10,5 +10,11 @@ z-eliminados/
 tests_Jmeter/
 tests_myscripts/
 
-# Ignorar archivos de configuración local
+# Ignorar archivos de configuración local y credenciales
 .env
+.env.local
+.env.*.local
+.env.production
+.env.staging
+.env.development
+.env.*

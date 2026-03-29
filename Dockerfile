@@ -34,13 +34,27 @@ RUN npm ci --only=production
 # Copiar código compilado desde builder
 COPY --from=builder /app/dist ./dist
 
-# Copiar .env.example como referencia (NO usar en producción)
-COPY .env.example .
+# 🔐 IMPORTANTE: NO copiar .env a imagen
+# Las credenciales se inyectan en tiempo de despliegue:
+#   - docker run -e SUPABASE_URL=... -e SUPABASE_KEY=...
+#   - docker-compose.yml (desde .env.production.local)
+#   - Variables de entorno del sistema
+# COPY .env .env
+
+# ✅ Copiar .env.example como REFERENCIA (documentación)
+COPY .env.docker.supabase .env
 
 # Variables de entorno
-ENV NODE_ENV=production
+# CTorre: 29-03-2026 - comentamos production - de momento solo dev
+# ENV NODE_ENV=production
+# ENV PORT=3000
+# ENV BACKEND=postgres
+# CTorre: 29-03-2026 - TEST - estoy en desarrollo y lo necesito testear
+# ⚠️ NO hardcodear credenciales aquí
+# Valores por defecto (serán reemplazados en despliegue)
+ENV NODE_ENV=test
 ENV PORT=3000
-ENV BACKEND=postgres
+ENV BACKEND=supabase
 
 # Metadata
 LABEL version="1.0"
