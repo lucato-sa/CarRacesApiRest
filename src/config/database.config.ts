@@ -28,7 +28,7 @@ export const DATABASE_CONFIG = {
     // SSL para Supabase
     isSupabase: process.env.DB_HOST?.includes('supabase.co') || process.env.BACKEND === 'supabase',
     ssl: {
-      rejectUnauthorized: process.env.NODE_ENV === 'production',
+      rejectUnauthorized: false, // Supabase requiere SSL pero no validamos certificado estrictamente
     },
   },
 

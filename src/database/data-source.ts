@@ -22,7 +22,7 @@ export const dbPool = new Pool({
   // SSL para Supabase y producción
   ...(DATABASE_CONFIG.DB.isSupabase && {
     ssl: {
-      rejectUnauthorized: DATABASE_CONFIG.IS_PRODUCTION,
+      rejectUnauthorized: false, // Supabase requiere SSL pero no validar certificado estrictamente
     },
   }),
 

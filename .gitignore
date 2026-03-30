@@ -17,4 +17,3 @@ tests_myscripts/
 .env.production
 .env.staging
 .env.development
-.env.*

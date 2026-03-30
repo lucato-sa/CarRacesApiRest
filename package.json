@@ -8,7 +8,9 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start": "cross-env BACKEND=supabase NODE_ENV=production node --require dotenv/config dist/server.js",
+    "start:dev": "cross-env BACKEND=supabase NODE_ENV=development node --require dotenv/config dist/server.js",
+    "start:postgres": "cross-env BACKEND=postgres NODE_ENV=production node --require dotenv/config dist/server.js",
     "dev": "ts-node-dev --respawn --transpile-only --require dotenv/config src/server.ts",
     "test": "cross-env BACKEND=memory vitest --run",
     "test:memory": "cross-env BACKEND=memory vitest --run",

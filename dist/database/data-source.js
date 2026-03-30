@@ -28,7 +28,7 @@ exports.dbPool = new pg_1.Pool({
     // SSL para Supabase y producción
     ...(database_config_1.DATABASE_CONFIG.DB.isSupabase && {
         ssl: {
-            rejectUnauthorized: database_config_1.DATABASE_CONFIG.IS_PRODUCTION,
+            rejectUnauthorized: false, // Supabase requiere SSL pero no validar certificado estrictamente
         },
     }),
     // Connection pool config

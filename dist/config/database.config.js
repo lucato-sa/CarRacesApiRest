@@ -29,7 +29,7 @@ exports.DATABASE_CONFIG = {
         // SSL para Supabase
         isSupabase: process.env.DB_HOST?.includes('supabase.co') || process.env.BACKEND === 'supabase',
         ssl: {
-            rejectUnauthorized: process.env.NODE_ENV === 'production',
+            rejectUnauthorized: false, // Supabase requiere SSL pero no validamos certificado estrictamente
         },
     },
     // ============ SUPABASE ============
@@ -368,7 +368,7 @@ exports.DATABASE_CONFIG = {
         'raceresults': 'result_id',
         'entitylinks': 'entity_link_id',
         'specialities': 'speciality_id',
-        'drivingenvironments': 'driving_environment_id',
+        'driving_environments': 'driving_environment_id',
         'levels': 'level_id',
         'groups': 'group_id',
         'scoring': 'scoring_id',

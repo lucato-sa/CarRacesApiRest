@@ -36,25 +36,21 @@ COPY --from=builder /app/dist ./dist
 
 # 🔐 IMPORTANTE: NO copiar .env a imagen
 # Las credenciales se inyectan en tiempo de despliegue:
-#   - docker run -e SUPABASE_URL=... -e SUPABASE_KEY=...
+#   - docker run -e DB_HOST=... -e DB_USER=... -e DB_PASSWORD=...
 #   - docker-compose.yml (desde .env.production.local)
 #   - Variables de entorno del sistema
-# COPY .env .env
+# NO COPIAR ARCHIVOS .env QUE CONTENGAN CREDENCIALES
 
-# ✅ Copiar .env.example como REFERENCIA (documentación)
-COPY .env.docker.supabase .env
-
-# Variables de entorno
-# CTorre: 29-03-2026 - comentamos production - de momento solo dev
-# ENV NODE_ENV=production
-# ENV PORT=3000
-# ENV BACKEND=postgres
-# CTorre: 29-03-2026 - TEST - estoy en desarrollo y lo necesito testear
-# ⚠️ NO hardcodear credenciales aquí
-# Valores por defecto (serán reemplazados en despliegue)
-ENV NODE_ENV=test
+# Variables de entorno por defecto
+# Los valores reales se inyectan en tiempo de despliegue
+ENV NODE_ENV=production
 ENV PORT=3000
 ENV BACKEND=supabase
+
+# Valores por defecto para Supabase (SERÁN REEMPLAZADOS)
+# ⚠️ NO hardcodear credenciales aquí - usar variables de entorno en despliegue
+ENV DB_PORT=5432
+ENV DB_NAME=postgres
 
 # Metadata
 LABEL version="1.0"

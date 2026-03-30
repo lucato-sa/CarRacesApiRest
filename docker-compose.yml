@@ -48,34 +48,31 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: caraces-api
-    depends_on:
-      postgres:
-        condition: service_healthy
+    
+    # 🔐 IMPORTANTE: Las credenciales se inyectan desde .env.production.local
+    # No incluyas credenciales hardcodeadas aquí
+    env_file:
+      - .env.production.local  # 🔒 NO comitear a Git
+      - .env.example           # 📖 Referencia (valores por defecto)
+    
     environment:
       # 🌍 Ambiente
       NODE_ENV: ${NODE_ENV:-production}
       PORT: ${PORT:-3000}
       
       # 🎯 Backend
-      BACKEND: ${BACKEND:-postgres}
+      BACKEND: ${BACKEND:-supabase}
       
-      # 🗄️ PostgreSQL Connection
-      DB_HOST: postgres  # Nombre del servicio Docker (no localhost)
+      # 🗄️ SUPABASE / PostgreSQL Configuration
+      DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT:-5432}
-      DB_NAME: ${DB_NAME:-carracesapi}
+      DB_NAME: ${DB_NAME:-postgres}
       DB_USER: ${DB_USER:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD}
       
-      # 🔗 URL de conexión para TypeORM (opcional)
-      DATABASE_URL: postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@postgres:5432/${DB_NAME:-carracesapi}
-    
-    ports:
-      - "${PORT:-3000}:3000"
-    
-    networks:
-      - caraces-network
-    
-    restart: unless-stopped
+      # ☁️ SUPABASE (opcional - si usas cliente Supabase)
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_KEY: ${SUPABASE_KEY}
     
     # Healthcheck
     healthcheck:
